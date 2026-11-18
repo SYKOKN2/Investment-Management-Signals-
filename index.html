@@ -48,12 +48,12 @@
       <div class="flex items-center gap-2.5">
         <div class="w-2 h-2 rounded-full bg-[var(--success)]"></div>
         <span class="text-sm font-semibold tracking-tight">ProFlow</span>
-        <span class="text-xs text-[var(--muted-foreground)] font-mono">VIX 25.46 • 15銘柄監視中</span>
+        <span class="text-xs text-[var(--muted-foreground)] font-mono">VIX 25.46 • 15銘柄</span>
       </div>
       <div class="flex items-center gap-1 bg-[var(--card)] border border-[var(--border)] p-1 rounded-full text-xs">
-        <button onclick="setMainView('signal')" id="nav-signal" class="px-3.5 py-1 rounded-full font-medium bg-[var(--foreground)] text-[var(--background)] transition">シグナル</button>
-        <button onclick="setMainView('matrix')" id="nav-matrix" class="px-3.5 py-1 rounded-full font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition">全15銘柄一覧</button>
-        <button onclick="setMainView('events')" id="nav-events" class="px-3.5 py-1 rounded-full font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition">重要日程</button>
+        <button onclick="setMainView('signal')" id="nav-signal" class="px-3 py-1 rounded-full font-medium bg-[var(--foreground)] text-[var(--background)] transition">シグナル</button>
+        <button onclick="setMainView('picks')" id="nav-picks" class="px-3 py-1 rounded-full font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition">🏆 今買うべき5選</button>
+        <button onclick="setMainView('matrix')" id="nav-matrix" class="px-3 py-1 rounded-full font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition">一覧</button>
       </div>
     </header>
 
@@ -62,7 +62,7 @@
       <div class="flex items-center gap-1.5 text-xs overflow-x-auto no-scrollbar">
         <button onclick="setRegion('ALL')" id="reg-ALL" class="px-2.5 py-1 rounded-lg font-medium transition">すべて (15)</button>
         <button onclick="setRegion('US')" id="reg-US" class="px-2.5 py-1 rounded-lg font-medium transition">🇺🇸 米個別株・宇宙 (4)</button>
-        <button onclick="setRegion('ETF')" id="reg-ETF" class="px-2.5 py-1 rounded-lg font-medium transition">🌍 米国・世界・欧州ETF (5)</button>
+        <button onclick="setRegion('ETF')" id="reg-ETF" class="px-2.5 py-1 rounded-lg font-medium transition">🌍 米・世界・欧州ETF (5)</button>
         <button onclick="setRegion('SG')" id="reg-SG" class="px-2.5 py-1 rounded-lg font-medium transition">🇸🇬 シンガポール株 (2)</button>
         <button onclick="setRegion('JP')" id="reg-JP" class="px-2.5 py-1 rounded-lg font-medium transition">🇯🇵 日本株・ETF (4)</button>
       </div>
@@ -72,7 +72,7 @@
     <!-- VIEW 1: SIGNAL COCKPIT -->
     <main id="view-signal" class="space-y-5 fade-in">
 
-      <!-- Hero Card: Price & Dual Signal -->
+      <!-- Hero Card: Price, Apple Stocks Style Chart & Dual Signal -->
       <section class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5 sm:p-7 space-y-5">
         <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
           <div class="space-y-1">
@@ -91,8 +91,29 @@
           </div>
         </div>
 
+        <!-- Apple Stocks-Style Interactive Chart -->
+        <div class="space-y-2.5 pt-1">
+          <div class="flex items-center justify-between text-xs">
+            <div class="flex items-center gap-3">
+              <span id="chart-hover-label" class="font-mono text-[var(--muted-foreground)]">チャートをタッチで価格確認</span>
+              <span class="hidden sm:inline-flex items-center gap-1.5 text-xs text-[var(--muted-foreground)]">
+                <span class="inline-block w-3 border-t border-dashed border-sky-400"></span> 200日線(SMA)
+              </span>
+            </div>
+            <div class="inline-flex bg-[var(--background)] border border-[var(--card-border)] p-0.5 rounded-lg text-xs font-mono">
+              <button onclick="setChartRange('1M')" id="rng-1M" class="px-2.5 py-1 rounded-md transition">1M</button>
+              <button onclick="setChartRange('6M')" id="rng-6M" class="px-2.5 py-1 rounded-md transition">6M</button>
+              <button onclick="setChartRange('1Y')" id="rng-1Y" class="px-2.5 py-1 rounded-md transition">1Y</button>
+            </div>
+          </div>
+
+          <div class="relative w-full h-44 sm:h-52 rounded-xl bg-[var(--background)]/60 border border-[var(--card-border)] p-2 overflow-hidden">
+            <canvas id="apple-chart" class="w-full h-full cursor-crosshair"></canvas>
+          </div>
+        </div>
+
         <!-- Clean Signal Summary Strip -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-[var(--card-border)]">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
           <div class="flex items-center justify-between p-3.5 rounded-xl bg-[var(--background)] border border-[var(--card-border)]">
             <div class="space-y-0.5">
               <span class="text-xs text-[var(--muted-foreground)]">短期（数日〜2週間）</span>
@@ -160,76 +181,68 @@
 
     </main>
 
-    <!-- VIEW 2: ALL 15 SYMBOLS QUICK MATRIX -->
+    <!-- VIEW 2: TOP PICKS (中長期で今買うべき厳選ランキング) -->
+    <main id="view-picks" class="hidden space-y-4 fade-in">
+      <section class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5 sm:p-6 space-y-4">
+        <div>
+          <h2 class="text-base font-bold">🏆 中長期目線で「今」買うべき銘柄ランキング</h2>
+          <p class="text-xs text-[var(--muted-foreground)] mt-0.5">機関投資家の資金流入・岩盤サポート到達・資本政策の誠実さで厳選（タップで詳細チャートへ）</p>
+        </div>
+
+        <div class="space-y-3 text-xs">
+          <div onclick="jumpToSymbol('8058')" class="p-4 rounded-xl bg-[var(--background)] border border-[var(--success)]/40 cursor-pointer hover:opacity-90 transition space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-sm text-[var(--success)]">🥇 1位：三菱商事 (8058) • 5,089円</span>
+              <span class="px-2.5 py-0.5 rounded-full font-mono bg-[var(--success)]/15 text-[var(--success)]">Strong Buy</span>
+            </div>
+            <p class="text-[var(--muted-foreground)] leading-relaxed">1兆円の自社株買い＋増配で株主還元が完璧。半導体（SOX指数）調整の影響を受けず、全15銘柄で唯一すべての移動平均線の上で推移する最強トレンド。5,040〜5,089円で第1弾。</p>
+          </div>
+
+          <div onclick="jumpToSymbol('D05')" class="p-4 rounded-xl bg-[var(--background)] border border-[var(--success)]/40 cursor-pointer hover:opacity-90 transition space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-sm text-[var(--success)]">🥈 2位：DBS Group (D05) • 66.55 SGD</span>
+              <span class="px-2.5 py-0.5 rounded-full font-mono bg-[var(--success)]/15 text-[var(--success)]">RSI 19.9 黄金押し目</span>
+            </div>
+            <p class="text-[var(--muted-foreground)] leading-relaxed">日足RSI 19.89は数年に一度の売られすぎクライマックス。日足200SMA(66.72)と週足50EMA(65.96)が重なる岩盤サポートに到達し、Citi目標株価(78 SGD)まで+17%余地。</p>
+          </div>
+
+          <div onclick="jumpToSymbol('AMZN')" class="p-4 rounded-xl bg-[var(--background)] border border-[var(--success)]/40 cursor-pointer hover:opacity-90 transition space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-sm text-[var(--success)]">🥉 3位：Amazon (AMZN) • 257.89 USD</span>
+              <span class="px-2.5 py-0.5 rounded-full font-mono bg-[var(--success)]/15 text-[var(--success)]">AIクラウド本命</span>
+            </div>
+            <p class="text-[var(--muted-foreground)] leading-relaxed">Anthropic上場の最大の恩恵銘柄（AWSに1,100億ドル発注コミット）。Googleと対照的に資本政策と収益化が堅調で、日足・週足ともに「買い」判定を維持。</p>
+          </div>
+
+          <div onclick="jumpToSymbol('IVV')" class="p-4 rounded-xl bg-[var(--background)] border border-[var(--card-border)] cursor-pointer hover:opacity-90 transition space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-sm">🏅 4位：IVV / CSPX / VHVE（S&P500・先進国コアETF）</span>
+              <span class="px-2.5 py-0.5 rounded-full font-mono bg-[var(--warning)]/15 text-[var(--warning)]">200日線・週足50MA支持</span>
+            </div>
+            <p class="text-[var(--muted-foreground)] leading-relaxed">本場米国のIVVが日足200SMA(735.59)を11セント差で完璧に防衛し時間外で反発。IPO換金売りで押している今が長期コア枠の分割買い第1弾の好機。</p>
+          </div>
+
+          <div onclick="jumpToSymbol('SPCX')" class="p-4 rounded-xl bg-[var(--background)] border border-[var(--card-border)] cursor-pointer hover:opacity-90 transition space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-sm">🚀 5位（成長枠）：SpaceX (SPCX) & Tesla (TSLA)</span>
+              <span class="px-2.5 py-0.5 rounded-full font-mono bg-[var(--success)]/15 text-[var(--success)]">逆行高・テーマ筆頭</span>
+            </div>
+            <p class="text-[var(--muted-foreground)] leading-relaxed">SpaceXは宇宙AIデータセンター構想＆Citi目標株価280ドル（約2倍）で+3.16%の逆行高。TeslaもCybercab量産転換とSpaceX統合思惑で時間外急伸。</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- VIEW 3: ALL 15 SYMBOLS QUICK MATRIX -->
     <main id="view-matrix" class="hidden space-y-4 fade-in">
       <section class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5 sm:p-6 space-y-4">
         <div class="flex items-center justify-between">
           <div>
             <h2 class="text-base font-bold">全15銘柄 シグナル比較マトリクス</h2>
-            <p class="text-xs text-[var(--muted-foreground)] mt-0.5">タップすると詳細画面へ移動します</p>
+            <p class="text-xs text-[var(--muted-foreground)] mt-0.5">タップすると詳細チャート画面へ移動します</p>
           </div>
         </div>
         <div id="matrix-list" class="divide-y divide-[var(--card-border)] text-xs"></div>
-      </section>
-    </main>
-
-    <!-- VIEW 3: UPCOMING CATALYSTS (CALENDAR) -->
-    <main id="view-events" class="hidden space-y-4 fade-in">
-      <section class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5 sm:p-6 space-y-5">
-        <div>
-          <h2 class="text-base font-bold">注目スケジュール（需給・経済指標）</h2>
-          <p class="text-xs text-[var(--muted-foreground)] mt-0.5">機関投資家のキャッシュ確保（換金売り）が終わる「アク抜け日」の目安</p>
-        </div>
-
-        <div class="space-y-3">
-          <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--card-border)] flex items-start justify-between gap-4">
-            <div class="space-y-1">
-              <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-[var(--error)]"></span>
-                <span class="text-xs font-mono text-[var(--muted-foreground)]">IPO Liquidity Event</span>
-              </div>
-              <div class="text-sm font-bold">Anthropic 大型IPO（資金移動イベント）</div>
-              <p class="text-xs text-[var(--muted-foreground)] leading-relaxed">Amazon（$110B AWS契約）とGoogle（$121.3B TPU契約）が大口計算パートナー。指数ETF（IVV・CSPX・VWRA）はIPO通過で換金売りが一巡へ。</p>
-            </div>
-            <span class="text-xs font-mono px-2.5 py-1 rounded-full bg-[var(--secondary)] shrink-0">最重要</span>
-          </div>
-
-          <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--card-border)] flex items-start justify-between gap-4">
-            <div class="space-y-1">
-              <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-[var(--warning)]"></span>
-                <span class="text-xs font-mono text-[var(--muted-foreground)]">11月20日（金）</span>
-              </div>
-              <div class="text-sm font-bold">🇯🇵 日本 全国消費者物価指数（CPI）</div>
-              <p class="text-xs text-[var(--muted-foreground)] leading-relaxed">1329（日経）・1475（TOPIX）・1364（JPX400）・8058（三菱商事）の短期方向感を決定づける重要指標。</p>
-            </div>
-            <span class="text-xs font-mono px-2.5 py-1 rounded-full bg-[var(--secondary)] shrink-0">金曜</span>
-          </div>
-
-          <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--card-border)] flex items-start justify-between gap-4">
-            <div class="space-y-1">
-              <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-[var(--warning)]"></span>
-                <span class="text-xs font-mono text-[var(--muted-foreground)]">11月23日（月）</span>
-              </div>
-              <div class="text-sm font-bold">🇩🇪 ドイツ 製造業・サービス業PMI 速報値</div>
-              <p class="text-xs text-[var(--muted-foreground)] leading-relaxed">ドイツ株ETF（FGM）および欧州株（VHVE/VWRAの約15%）の景気底打ちを見極める指標。</p>
-            </div>
-            <span class="text-xs font-mono px-2.5 py-1 rounded-full bg-[var(--secondary)] shrink-0">来週月曜</span>
-          </div>
-
-          <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--card-border)] flex items-start justify-between gap-4">
-            <div class="space-y-1">
-              <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-[var(--error)]"></span>
-                <span class="text-xs font-mono text-[var(--muted-foreground)]">11月25日（水）</span>
-              </div>
-              <div class="text-sm font-bold">🇺🇸 米国 コアPCE価格指数 & 実質GDP改定値</div>
-              <p class="text-xs text-[var(--muted-foreground)] leading-relaxed">FRB最重視のインフレ指標。米国株（IVV/CSPX/AMZN/TSLA/GOOG/SPCX）およびシンガポール銀行株（D05/O39）の最大の山場。</p>
-            </div>
-            <span class="text-xs font-mono px-2.5 py-1 rounded-full bg-[var(--secondary)] shrink-0">来週水曜</span>
-          </div>
-        </div>
       </section>
     </main>
 
@@ -631,9 +644,9 @@ window.PROFLOW_DATA = {
       rangeHigh: '295.00 (日足20SMA)',
       lenses: {
         flow: {
-          headline: '検索シェアへのAI競合懸念＋Waymo高速道路停止で機関投資家がアンダーウェイト',
-          tag: '1ヶ月 -19.37%',
-          body: '同じAnthropic出資組でも、堅調なAmazon（+11% YTD）と対照的にGoogleは年初来-12.6%と独り負け状態。ファンドの「AIセクター内の入れ替え（Google売り→Anthropic/Amazon買い）」の売り対象になっています。'
+          headline: '高値での新株発行 vs 安値での自社株売却という「株主軽視」でプロが離反',
+          tag: 'ガバナンス不信 (1M -19.4%)',
+          body: '高値圏で新株発行（希薄化）を行いながら、その価格以下で自社株を売るような投資家に泥を塗る資本政策（キャピタルアロケーション）がウォール街の不信感を買い、1兆円自社株買いの三菱商事や堅調なAmazonとは真逆に機関投資家のボイコット（売却）対象になっています。'
         },
         cta: {
           headline: '日足・週足ともに「売り」判定（移動平均線は14本すべてSell）',
@@ -815,9 +828,9 @@ window.PROFLOW_DATA = {
       rangeHigh: '6,249 (週足50EMA)',
       lenses: {
         flow: {
-          headline: '米半導体規制のあおりで、日経225の値がさハイテク株が売られる',
-          tag: '1ヶ月 -7.77%',
-          body: '日経平均（1329）は東京エレクトロンやアドバンテストなど半導体株の比率が高いため、TOPIX（1475：1ヶ月-4.97%）よりも下落率が大きくなっています。'
+          headline: '韓国・台湾株と一緒に買われすぎた反動＋SOX指数(半導体)連動で回復に時間',
+          tag: '東アジア半導体バスケット調整',
+          body: '海外勢が韓国・台湾株とセットで買い上げた反動が出ています。日経225はNASDAQや米SOX指数（半導体）との相関が極めて強く、まず米AI・半導体が底打ちしてから日本の製造装置へ資金が戻るため、本格的な再上昇までには日柄（時間）がかかります。'
         },
         cta: {
           headline: '週足50EMA（6,249円）を割り込んでいる点がテクニカルの弱み',
@@ -937,8 +950,240 @@ window.PROFLOW_DATA = {
   <script>
     const DATA = window.PROFLOW_DATA.symbols;
     let currentRegion = 'ALL';
-    let currentId = 'AMZN';
+    let currentId = '8058';
     let currentLens = 'flow';
+    let currentChartRange = '6M';
+
+    // Historical performance anchors from TradingView (1D, 5D, 1M, 3M, 6M, 1Y, SMA200)
+    const CHART_ANCHORS = {
+      VWRA: { cur: 182.18, d5: -3.55, m1: -5.23, m3: -5.72, m6: -1.84, y1: 9.06, sma200: 185.05 },
+      CSPX: { cur: 790.97, d5: -3.46, m1: -5.47, m3: -4.57, m6: -0.88, y1: 3.22, sma200: 791.46 },
+      IVV:  { cur: 735.70, d5: -2.85, m1: -5.27, m3: -4.95, m6: -0.86, y1: 9.32, sma200: 735.59 },
+      VHVE: { cur: 145.10, d5: -4.06, m1: -5.00, m3: -5.42, m6: -1.40, y1: 10.09, sma200: 146.52 },
+      FGM:  { cur: 57.84,  d5: -2.85, m1: -1.07, m3: -8.19, m6: -10.06, y1: -1.48, sma200: 62.93 },
+      AMZN: { cur: 257.89, d5: -3.74, m1: 1.10,  m3: -1.13, m6: -2.13, y1: 10.56, sma200: 244.76 },
+      SPCX: { cur: 141.70, d5: 2.80,  m1: -4.13, m3: -2.25, m6: -5.53, y1: -5.53, sma200: 144.94 },
+      TSLA: { cur: 380.11, d5: -1.62, m1: 2.97,  m3: 12.16, m6: -9.96, y1: -4.67, sma200: 382.27 },
+      GOOG: { cur: 277.60, d5: -4.46, m1: -19.37,m3: -18.31,m6: -27.33,y1: -3.07, sma200: 335.79 },
+      D05:  { cur: 66.55,  d5: -5.48, m1: -10.12,m3: -11.87,m6: 7.67,  y1: 23.91, sma200: 66.72 },
+      O39:  { cur: 27.36,  d5: -4.34, m1: -5.69, m3: -10.82,m6: 16.92, y1: 49.05, sma200: 26.01 },
+      '8058': { cur: 5089, d5: -4.58, m1: 7.25,  m3: 9.30,  m6: -5.99, y1: 38.50, sma200: 4915 },
+      '1329': { cur: 6160, d5: -4.02, m1: -7.77, m3: -9.93, m6: -5.12, y1: 18.97, sma200: 6469 },
+      '1475': { cur: 396.3,d5: -3.72, m1: -4.97, m3: -4.44, m6: -1.42, y1: 15.32, sma200: 403.2 },
+      '1364': { cur: 3592, d5: -3.21, m1: -4.57, m3: -4.11, m6: -1.02, y1: 15.95, sma200: 3637 }
+    };
+
+    function buildSeries(id, range) {
+      const a = CHART_ANCHORS[id] || CHART_ANCHORS.VWRA;
+      const cur = a.cur;
+      const p5d = cur / (1 + a.d5 / 100);
+      const p1m = cur / (1 + a.m1 / 100);
+      const p3m = cur / (1 + a.m3 / 100);
+      const p6m = cur / (1 + a.m6 / 100);
+      const p1y = cur / (1 + a.y1 / 100);
+
+      let waypoints = [];
+      if (range === '1M') {
+        waypoints = [p1m, (p1m * 0.6 + p5d * 0.4) * 1.012, p5d * 1.015, p5d, cur];
+      } else if (range === '6M') {
+        waypoints = [p6m, (p6m + p3m) / 2 * 1.025, p3m * 1.04, p1m * 1.015, p5d, cur];
+      } else {
+        waypoints = [p1y, (p1y + p6m) / 2 * 0.98, p6m * 1.03, p3m * 1.05, p1m, p5d, cur];
+      }
+
+      const steps = 48;
+      const pts = [];
+      let seed = id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+      for (let i = 0; i <= steps; i++) {
+        const t = (i / steps) * (waypoints.length - 1);
+        const idx = Math.min(Math.floor(t), waypoints.length - 2);
+        const frac = t - idx;
+        const smooth = frac * frac * (3 - 2 * frac);
+        let val = waypoints[idx] * (1 - smooth) + waypoints[idx + 1] * smooth;
+        if (i > 0 && i < steps) {
+          seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+          const noise = ((seed % 1000) / 1000 - 0.5) * 0.012 * cur;
+          val += noise;
+        }
+        pts.push(val);
+      }
+      return { pts, sma200: a.sma200 };
+    }
+
+    let activeSeries = null;
+    let hoverIndex = null;
+
+    function drawAppleChart() {
+      const canvas = document.getElementById('apple-chart');
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+
+      const w = rect.width;
+      const h = rect.height;
+      ctx.clearRect(0, 0, w, h);
+
+      activeSeries = buildSeries(currentId, currentChartRange);
+      const pts = activeSeries.pts;
+      const sma = activeSeries.sma200;
+
+      const allVals = pts.concat([sma]);
+      const minV = Math.min(...allVals) * 0.992;
+      const maxV = Math.max(...allVals) * 1.008;
+      const span = Math.max(maxV - minV, 0.0001);
+
+      const padX = 8;
+      const padY = 14;
+      const plotW = w - padX * 2;
+      const plotH = h - padY * 2;
+
+      const toX = (i) => padX + (i / (pts.length - 1)) * plotW;
+      const toY = (v) => padY + (1 - (v - minV) / span) * plotH;
+
+      // Subtle horizontal grid lines
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.12)';
+      ctx.lineWidth = 1;
+      [0.2, 0.5, 0.8].forEach(r => {
+        ctx.beginPath();
+        ctx.moveTo(padX, padY + plotH * r);
+        ctx.lineTo(w - padX, padY + plotH * r);
+        ctx.stroke();
+      });
+
+      // 200-day SMA dashed reference line
+      if (sma >= minV && sma <= maxV) {
+        const ySma = toY(sma);
+        ctx.save();
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.65)';
+        ctx.lineWidth = 1.2;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(padX, ySma);
+        ctx.lineTo(w - padX, ySma);
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.85)';
+        ctx.font = '10px ui-monospace, SFMono-Regular, Menlo, monospace';
+        ctx.fillText('200SMA ' + formatNum(sma), padX + 4, Math.max(ySma - 5, 10));
+        ctx.restore();
+      }
+
+      // Main price curve color (Apple Stocks green if current >= start or Strong Buy, else coral/amber)
+      const isPositive = pts[pts.length - 1] >= pts[0];
+      const strokeColor = isPositive ? '#10b981' : '#f43f5e';
+      const gradTop = isPositive ? 'rgba(16, 185, 129, 0.28)' : 'rgba(244, 63, 94, 0.28)';
+      const gradBot = isPositive ? 'rgba(16, 185, 129, 0.0)' : 'rgba(244, 63, 94, 0.0)';
+
+      // Area fill
+      ctx.beginPath();
+      pts.forEach((v, i) => {
+        const x = toX(i);
+        const y = toY(v);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.lineTo(toX(pts.length - 1), h);
+      ctx.lineTo(toX(0), h);
+      ctx.closePath();
+      const grad = ctx.createLinearGradient(0, 0, 0, h);
+      grad.addColorStop(0, gradTop);
+      grad.addColorStop(1, gradBot);
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // Smooth price line
+      ctx.beginPath();
+      pts.forEach((v, i) => {
+        const x = toX(i);
+        const y = toY(v);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.strokeStyle = strokeColor;
+      ctx.lineWidth = 2.2;
+      ctx.lineJoin = 'round';
+      ctx.stroke();
+
+      // End glowing dot or hover scrubber
+      const idx = (hoverIndex !== null && hoverIndex >= 0 && hoverIndex < pts.length) ? hoverIndex : (pts.length - 1);
+      const cx = toX(idx);
+      const cy = toY(pts[idx]);
+
+      if (hoverIndex !== null) {
+        ctx.save();
+        ctx.strokeStyle = 'rgba(248, 250, 252, 0.35)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(cx, 0);
+        ctx.lineTo(cx, h);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      ctx.beginPath();
+      ctx.arc(cx, cy, 4.5, 0, Math.PI * 2);
+      ctx.fillStyle = strokeColor;
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#090d16';
+      ctx.stroke();
+    }
+
+    function formatNum(val) {
+      const unit = DATA[currentId].unit;
+      if (unit === 'JPY' && val >= 1000) return Math.round(val).toLocaleString();
+      if (unit === 'JPY') return val.toFixed(1);
+      return val.toFixed(2);
+    }
+
+    function setChartRange(rng) {
+      currentChartRange = rng;
+      ['1M', '6M', '1Y'].forEach(r => {
+        const btn = document.getElementById('rng-' + r);
+        if (r === rng) {
+          btn.className = 'px-2.5 py-1 rounded-md font-semibold bg-[var(--card)] text-[var(--foreground)] shadow-sm transition';
+        } else {
+          btn.className = 'px-2.5 py-1 rounded-md text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition';
+        }
+      });
+      hoverIndex = null;
+      const a = CHART_ANCHORS[currentId];
+      const pct = rng === '1M' ? a.m1 : (rng === '6M' ? a.m6 : a.y1);
+      const sign = pct >= 0 ? '+' : '';
+      document.getElementById('chart-hover-label').textContent = `${rng}騰落率: ${sign}${pct.toFixed(2)}% • 200SMA: ${formatNum(a.sma200)}`;
+      drawAppleChart();
+    }
+
+    function setupChartTouch() {
+      const canvas = document.getElementById('apple-chart');
+      if (!canvas) return;
+      const handleMove = (clientX) => {
+        if (!activeSeries) return;
+        const rect = canvas.getBoundingClientRect();
+        const relX = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+        hoverIndex = Math.round(relX * (activeSeries.pts.length - 1));
+        const val = activeSeries.pts[hoverIndex];
+        const base = activeSeries.pts[0];
+        const diffPct = ((val - base) / base) * 100;
+        const sign = diffPct >= 0 ? '+' : '';
+        document.getElementById('chart-hover-label').textContent = `価格: ${formatNum(val)} ${DATA[currentId].unit} (${sign}${diffPct.toFixed(2)}%)`;
+        drawAppleChart();
+      };
+      canvas.addEventListener('mousemove', e => handleMove(e.clientX));
+      canvas.addEventListener('touchmove', e => {
+        if (e.touches && e.touches[0]) handleMove(e.touches[0].clientX);
+      }, { passive: true });
+      const resetHover = () => {
+        hoverIndex = null;
+        setChartRange(currentChartRange);
+      };
+      canvas.addEventListener('mouseleave', resetHover);
+      canvas.addEventListener('touchend', resetHover);
+      window.addEventListener('resize', drawAppleChart);
+    }
 
     function toneStyles(tone) {
       if (tone === 'success') return 'bg-[var(--success)]/15 text-[var(--success)] border border-[var(--success)]/30';
@@ -1025,6 +1270,7 @@ window.PROFLOW_DATA = {
       `).join('');
 
       setLens(currentLens);
+      setChartRange(currentChartRange);
     }
 
     function setLens(lens) {
@@ -1080,20 +1326,22 @@ window.PROFLOW_DATA = {
     function setMainView(view) {
       document.getElementById('view-signal').classList.toggle('hidden', view !== 'signal');
       document.getElementById('nav-area').classList.toggle('hidden', view !== 'signal');
+      document.getElementById('view-picks').classList.toggle('hidden', view !== 'picks');
       document.getElementById('view-matrix').classList.toggle('hidden', view !== 'matrix');
-      document.getElementById('view-events').classList.toggle('hidden', view !== 'events');
 
-      ['signal', 'matrix', 'events'].forEach(v => {
+      ['signal', 'picks', 'matrix'].forEach(v => {
         const btn = document.getElementById('nav-' + v);
         btn.className = (v === view)
-          ? 'px-3.5 py-1 rounded-full font-medium bg-[var(--foreground)] text-[var(--background)] transition'
-          : 'px-3.5 py-1 rounded-full font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition';
+          ? 'px-3 py-1 rounded-full font-medium bg-[var(--foreground)] text-[var(--background)] transition'
+          : 'px-3 py-1 rounded-full font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition';
       });
       if (view === 'matrix') renderMatrix();
+      if (view === 'signal') setTimeout(drawAppleChart, 20);
     }
 
+    setupChartTouch();
     setRegion('ALL');
-    selectSymbol('AMZN');
+    selectSymbol('8058');
   </script>
 </body>
 </html>
