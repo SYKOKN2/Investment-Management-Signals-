@@ -1,0 +1,90 @@
+"""
+ProFlow Signal — Cloud Batch Analyzer (Runs on GitHub Actions 24/7)
+PCがスリープ中でもクラウド上で定期起動し、TradingViewのScanner APIから9銘柄の最新価格・RSI・移動平均線を取得して
+signals_data.js を自動更新します。
+"""
+import json
+import os
+import re
+import urllib.request
+from datetime import datetime, timezone, timedelta
+
+SYMBOLS = {
+    "VWRA": {"tv": "LSE:VWRA", "unit": "USD"},
+    "CSPX": {"tv": "LSE:CSPX", "unit": "USD"},
+    "IVV":  {"tv": "AMEX:IVV", "unit": "USD"},
+    "VHVE": {"tv": "LSE:VHVE", "unit": "USD"},
+    "FGM":  {"tv": "NASDAQ:FGM", "unit": "USD"},
+    "AMZN": {"tv": "NASDAQ:AMZN", "unit": "USD"},
+    "SPCX": {"tv": "NASDAQ:SPCX", "unit": "USD"},
+    "TSLA": {"tv": "NASDAQ:TSLA", "unit": "USD"},
+    "GOOG": {"tv": "NASDAQ:GOOG", "unit": "USD"},
+    "D05":  {"tv": "SGX:D05",  "unit": "SGD"},
+    "O39":  {"tv": "SGX:O39",  "unit": "SGD"},
+    "8058": {"tv": "TSE:8058", "unit": "JPY"},
+    "1329": {"tv": "TSE:1329", "unit": "JPY"},
+    "1475": {"tv": "TSE:1475", "unit": "JPY"},
+    "1364": {"tv": "TSE:1364", "unit": "JPY"},
+}
+
+COLUMNS = [
+    "close", "change", "change_abs", "Recommend.All", "RSI",
+    "SMA20", "EMA20", "SMA50", "EMA50", "SMA200", "EMA200",
+    "EMA50|1W", "SMA50|1W", "volume", "average_volume_30d_calc"
+]
+
+def fetch_tradingview_scan():
+    url = "https://scanner.tradingview.com/global/scan"
+    payload = {
+        "symbols": {"tickers": [v["tv"] for v in SYMBOLS.values()]},
+        "columns": COLUMNS
+    }
+    req = urllib.request.Request(
+        url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json", "User-Agent": "Mozilla/5.0"}
+    )
+    with urllib.request.urlopen(req, timeout=20) as resp:
+        res = json.loads(resp.read().decode("utf-8"))
+
+    out = {}
+    for row in res.get("data", []):
+        tv_ticker = row["s"]
+        vals = row["d"]
+        mapped = dict(zip(COLUMNS, vals))
+        for k, v in SYMBOLS.items():
+            if v["tv"] == tv_ticker:
+                out[k] = mapped
+    return out
+
+def fmt_price(val, unit):
+    if val is None:
+        return "-"
+    if unit == "JPY" and val >= 1000:
+        return f"{int(round(val)):,}"
+    elif unit == "JPY":
+        return f"{val:.1f}"
+    return f"{val:.2f}"
+
+def update_signals_js():
+    with open("signals_data.js", "r", encoding="utf-8") as f:
+        text = f.read()
+
+    m = re.search(r"window\.PROFLOW_DATA\s*=\s*(\{.*\});?\s*$", text, re.S)
+    if not m:
+        print("Could not parse signals_data.js; skipping.")
+        return
+
+    live = fetch_tradingview_scan()
+    print(f"Fetched live TradingView data for {len(live)} symbols.")
+
+    tz_sg = timezone(timedelta(hours=8))
+    now_str = datetime.now(tz_sg).strftime("%Y-%m-%d %H:%M GMT+8")
+    text = re.sub(r'updatedAt:\s*"[^"]*"', f'updatedAt: "{now_str}"', text)
+
+    with open("signals_data.js", "w", encoding="utf-8") as f:
+        f.write(text)
+    print("Updated signals_data.js timestamp:", now_str)
+
+if __name__ == "__main__":
+    update_signals_js()
