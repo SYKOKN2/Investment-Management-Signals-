@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ja" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="ProFlow" />
+  <title>ProFlow — AI Investment Signal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    :root {
+      --background: #090d16;
+      --card: #111827;
+      --border: #1f2937;
+      --card-border: #1f2937;
+      --foreground: #f9fafb;
+      --muted-foreground: #9ca3af;
+      --primary: #3b82f6;
+      --primary-foreground: #ffffff;
+      --secondary: #1f2937;
+      --secondary-foreground: #e5e7eb;
+      --link: #60a5fa;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --error: #ef4444;
+    }
+    body {
+      background-color: var(--background);
+      color: var(--foreground);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .fade-in { animation: fadeIn 0.18s ease-out; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(3px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="bg-[var(--background)] text-[var(--foreground)] antialiased p-4 sm:p-8 m-0 select-none">
+  <div class="max-w-3xl mx-auto space-y-5">
+
+    <!-- Minimal Top Bar -->
+    <header class="flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-2 h-2 rounded-full bg-[var(--success)]"></div>
+        <span class="text-sm font-semibold tracking-tight">ProFlow</span>
+        <span class="text-xs text-[var(--muted-foreground)] font-mono">VIX 25.46 • 15銘柄監視中</span>
+      </div>
+      <div class="flex items-center gap-1 bg-[var(--card)] border border-[var(--border)] p-1 rounded-full text-xs">
+        <button onclick="setMainView('signal')" id="nav-signal" class="px-3.5 py-1 rounded-full font-medium bg-[var(--foreground)] text-[var(--background)] transition">シグナル</button>
+        <button onclick="setMainView('matrix')" id="nav-matrix" class="px-3.5 py-1 rounded-full font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition">全15銘柄一覧</button>
+        <button onclick="setMainView('events')" id="nav-events" class="px-3.5 py-1 rounded-full font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition">重要日程</button>
+      </div>
+    </header>
+
+    <!-- Region Filter + Ticker Bar -->
+    <div id="nav-area" class="space-y-2.5">
+      <div class="flex items-center gap-1.5 text-xs overflow-x-auto no-scrollbar">
+        <button onclick="setRegion('ALL')" id="reg-ALL" class="px-2.5 py-1 rounded-lg font-medium transition">すべて (15)</button>
+        <button onclick="setRegion('US')" id="reg-US" class="px-2.5 py-1 rounded-lg font-medium transition">🇺🇸 米個別株・宇宙 (4)</button>
+        <button onclick="setRegion('ETF')" id="reg-ETF" class="px-2.5 py-1 rounded-lg font-medium transition">🌍 米国・世界・欧州ETF (5)</button>
+        <button onclick="setRegion('SG')" id="reg-SG" class="px-2.5 py-1 rounded-lg font-medium transition">🇸🇬 シンガポール株 (2)</button>
+        <button onclick="setRegion('JP')" id="reg-JP" class="px-2.5 py-1 rounded-lg font-medium transition">🇯🇵 日本株・ETF (4)</button>
+      </div>
+      <nav id="ticker-bar" class="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5"></nav>
+    </div>
+
+    <!-- VIEW 1: SIGNAL COCKPIT -->
+    <main id="view-signal" class="space-y-5 fade-in">
+
+      <!-- Hero Card: Price & Dual Signal -->
+      <section class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5 sm:p-7 space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <span id="hero-asset-class" class="text-xs font-medium text-[var(--muted-foreground)]"></span>
+              <span class="text-xs text-[var(--muted-foreground)]">•</span>
+              <span id="hero-ticker" class="text-xs font-mono text-[var(--muted-foreground)]"></span>
+            </div>
+            <h1 id="hero-title" class="text-2xl sm:text-3xl font-bold tracking-tight"></h1>
+            <p id="hero-subtitle" class="text-xs text-[var(--muted-foreground)]"></p>
+          </div>
+
+          <div class="sm:text-right font-mono tabular-nums">
+            <div id="hero-price" class="text-2xl sm:text-3xl font-bold tracking-tight"></div>
+            <div id="hero-change" class="text-xs font-medium mt-0.5"></div>
+          </div>
+        </div>
+
+        <!-- Clean Signal Summary Strip -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-[var(--card-border)]">
+          <div class="flex items-center justify-between p-3.5 rounded-xl bg-[var(--background)] border border-[var(--card-border)]">
+            <div class="space-y-0.5">
+              <span class="text-xs text-[var(--muted-foreground)]">短期（数日〜2週間）</span>
+              <div id="sig-short-title" class="text-sm font-bold"></div>
+            </div>
+            <span id="sig-short-pill" class="px-2.5 py-1 rounded-full text-xs font-semibold shrink-0"></span>
+          </div>
+
+          <div class="flex items-center justify-between p-3.5 rounded-xl bg-[var(--background)] border border-[var(--card-border)]">
+            <div class="space-y-0.5">
+              <span class="text-xs text-[var(--muted-foreground)]">中長期・コア戦略</span>
+              <div id="sig-long-title" class="text-sm font-bold"></div>
+            </div>
+            <span id="sig-long-pill" class="px-2.5 py-1 rounded-full text-xs font-semibold shrink-0"></span>
+          </div>
+        </div>
+
+        <!-- Visual Price Range Gauge -->
+        <div class="space-y-2 pt-1">
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-[var(--muted-foreground)]">サポート</span>
+            <span id="range-status" class="font-medium text-[var(--foreground)] text-center truncate px-2"></span>
+            <span class="text-[var(--muted-foreground)]">レジスタンス</span>
+          </div>
+          <div class="relative h-2 w-full rounded-full bg-[var(--background)] border border-[var(--card-border)] overflow-hidden">
+            <div class="absolute inset-y-0 left-0 w-1/3 bg-[var(--success)]/30"></div>
+            <div id="range-marker" class="absolute top-0 bottom-0 w-2.5 rounded-full bg-[var(--primary)] transition-all duration-300" style="left: 30%"></div>
+          </div>
+          <div class="flex items-center justify-between text-xs font-mono text-[var(--muted-foreground)] tabular-nums">
+            <span id="range-low"></span>
+            <span id="range-mid" class="text-[var(--foreground)] font-semibold"></span>
+            <span id="range-high"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pro Insights: Segmented Interactive Card -->
+      <section class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5 sm:p-6 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <h2 class="text-sm font-semibold">プロの目線（3大ファクター分析）</h2>
+          <div class="inline-flex bg-[var(--background)] border border-[var(--card-border)] p-1 rounded-xl text-xs">
+            <button onclick="setLens('flow')" id="lens-flow" class="px-3 py-1.5 rounded-lg font-medium transition flex-1 sm:flex-none">① 資金フロー</button>
+            <button onclick="setLens('cta')" id="lens-cta" class="px-3 py-1.5 rounded-lg font-medium transition flex-1 sm:flex-none">② チャート</button>
+            <button onclick="setLens('macro')" id="lens-macro" class="px-3 py-1.5 rounded-lg font-medium transition flex-1 sm:flex-none">③ ニュース</button>
+          </div>
+        </div>
+
+        <div id="lens-content" class="p-4 rounded-xl bg-[var(--background)] border border-[var(--card-border)] space-y-2 fade-in">
+          <div class="flex items-center justify-between gap-2">
+            <span id="lens-headline" class="text-sm font-bold"></span>
+            <span id="lens-tag" class="text-xs font-mono text-[var(--link)] shrink-0"></span>
+          </div>
+          <p id="lens-body" class="text-xs text-[var(--muted-foreground)] leading-relaxed"></p>
+        </div>
+
+        <!-- Next Action Trigger -->
+        <div class="flex items-start gap-3 pt-2">
+          <div class="px-2 py-0.5 rounded text-xs font-mono bg-[var(--secondary)] text-[var(--secondary-foreground)] shrink-0 mt-0.5">ACTION</div>
+          <p id="next-action-text" class="text-xs text-[var(--muted-foreground)] leading-relaxed"></p>
+        </div>
+      </section>
+
+      <!-- Minimal Key Metrics Grid -->
+      <section id="metrics-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></section>
+
+    </main>
+
+    <!-- VIEW 2: ALL 15 SYMBOLS QUICK MATRIX -->
+    <main id="view-matrix" class="hidden space-y-4 fade-in">
+      <section class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5 sm:p-6 space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-base font-bold">全15銘柄 シグナル比較マトリクス</h2>
+            <p class="text-xs text-[var(--muted-foreground)] mt-0.5">タップすると詳細画面へ移動します</p>
+          </div>
+        </div>
+        <div id="matrix-list" class="divide-y divide-[var(--card-border)] text-xs"></div>
+      </section>
+    </main>
+
+    <!-- VIEW 3: UPCOMING CATALYSTS (CALENDAR) -->
+    <main id="view-events" class="hidden space-y-4 fade-in">
+      <section class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5 sm:p-6 space-y-5">
+        <div>
+          <h2 class="text-base font-bold">注目スケジュール（需給・経済指標）</h2>
+          <p class="text-xs text-[var(--muted-foreground)] mt-0.5">機関投資家のキャッシュ確保（換金売り）が終わる「アク抜け日」の目安</p>
+        </div>
+
+        <div class="space-y-3">
+          <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--card-border)] flex items-start justify-between gap-4">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-[var(--error)]"></span>
+                <span class="text-xs font-mono text-[var(--muted-foreground)]">IPO Liquidity Event</span>
+              </div>
+              <div class="text-sm font-bold">Anthropic 大型IPO（資金移動イベント）</div>
+              <p class="text-xs text-[var(--muted-foreground)] leading-relaxed">Amazon（$110B AWS契約）とGoogle（$121.3B TPU契約）が大口計算パートナー。指数ETF（IVV・CSPX・VWRA）はIPO通過で換金売りが一巡へ。</p>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded-full bg-[var(--secondary)] shrink-0">最重要</span>
+          </div>
+
+          <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--card-border)] flex items-start justify-between gap-4">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-[var(--warning)]"></span>
+                <span class="text-xs font-mono text-[var(--muted-foreground)]">11月20日（金）</span>
+              </div>
+              <div class="text-sm font-bold">🇯🇵 日本 全国消費者物価指数（CPI）</div>
+              <p class="text-xs text-[var(--muted-foreground)] leading-relaxed">1329（日経）・1475（TOPIX）・1364（JPX400）・8058（三菱商事）の短期方向感を決定づける重要指標。</p>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded-full bg-[var(--secondary)] shrink-0">金曜</span>
+          </div>
+
+          <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--card-border)] flex items-start justify-between gap-4">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-[var(--warning)]"></span>
+                <span class="text-xs font-mono text-[var(--muted-foreground)]">11月23日（月）</span>
+              </div>
+              <div class="text-sm font-bold">🇩🇪 ドイツ 製造業・サービス業PMI 速報値</div>
+              <p class="text-xs text-[var(--muted-foreground)] leading-relaxed">ドイツ株ETF（FGM）および欧州株（VHVE/VWRAの約15%）の景気底打ちを見極める指標。</p>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded-full bg-[var(--secondary)] shrink-0">来週月曜</span>
+          </div>
+
+          <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--card-border)] flex items-start justify-between gap-4">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-[var(--error)]"></span>
+                <span class="text-xs font-mono text-[var(--muted-foreground)]">11月25日（水）</span>
+              </div>
+              <div class="text-sm font-bold">🇺🇸 米国 コアPCE価格指数 & 実質GDP改定値</div>
+              <p class="text-xs text-[var(--muted-foreground)] leading-relaxed">FRB最重視のインフレ指標。米国株（IVV/CSPX/AMZN/TSLA/GOOG/SPCX）およびシンガポール銀行株（D05/O39）の最大の山場。</p>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded-full bg-[var(--secondary)] shrink-0">来週水曜</span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+  </div>
+
+  <script src="signals_data.js"></script>
+  <script>
+    const DATA = window.PROFLOW_DATA.symbols;
+    let currentRegion = 'ALL';
+    let currentId = 'AMZN';
+    let currentLens = 'flow';
+
+    function toneStyles(tone) {
+      if (tone === 'success') return 'bg-[var(--success)]/15 text-[var(--success)] border border-[var(--success)]/30';
+      if (tone === 'warning') return 'bg-[var(--warning)]/15 text-[var(--warning)] border border-[var(--warning)]/30';
+      return 'bg-[var(--error)]/15 text-[var(--error)] border border-[var(--error)]/30';
+    }
+
+    function setRegion(reg) {
+      currentRegion = reg;
+      ['ALL', 'US', 'ETF', 'SG', 'JP'].forEach(r => {
+        const btn = document.getElementById('reg-' + r);
+        if (r === reg) {
+          btn.className = 'px-2.5 py-1 rounded-lg font-semibold bg-[var(--secondary)] text-[var(--foreground)] transition shrink-0';
+        } else {
+          btn.className = 'px-2.5 py-1 rounded-lg font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition shrink-0';
+        }
+      });
+      const visibleIds = Object.keys(DATA).filter(id => reg === 'ALL' || DATA[id].region === reg);
+      if (!visibleIds.includes(currentId)) {
+        currentId = visibleIds[0];
+      }
+      renderTickerBar();
+      selectSymbol(currentId);
+    }
+
+    function renderTickerBar() {
+      const bar = document.getElementById('ticker-bar');
+      const keys = Object.keys(DATA).filter(id => currentRegion === 'ALL' || DATA[id].region === currentRegion);
+      bar.innerHTML = keys.map(id => {
+        const item = DATA[id];
+        const active = id === currentId;
+        return `
+          <button onclick="selectSymbol('${id}')" class="px-3.5 py-2 rounded-full text-xs font-medium transition shrink-0 flex items-center gap-2 border ${
+            active
+              ? 'bg-[var(--foreground)] text-[var(--background)] border-[var(--foreground)] shadow-sm'
+              : 'bg-[var(--card)] text-[var(--muted-foreground)] border-[var(--border)] hover:text-[var(--foreground)]'
+          }">
+            <span>${item.title}</span>
+            <span class="font-mono opacity-75">${item.price}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectSymbol(id) {
+      currentId = id;
+      renderTickerBar();
+      const d = DATA[id];
+
+      document.getElementById('hero-asset-class').textContent = d.assetClass;
+      document.getElementById('hero-ticker').textContent = d.ticker;
+      document.getElementById('hero-title').textContent = d.title;
+      document.getElementById('hero-subtitle').textContent = d.subtitle;
+      document.getElementById('hero-price').innerHTML = `${d.price} <span class="text-sm font-normal text-[var(--muted-foreground)]">${d.unit}</span>`;
+
+      const chg = document.getElementById('hero-change');
+      chg.textContent = d.change;
+      chg.className = 'text-xs font-medium mt-0.5 ' + (d.isUp ? 'text-[var(--success)]' : 'text-[var(--error)]');
+
+      document.getElementById('sig-short-title').textContent = d.shortTitle;
+      const sp = document.getElementById('sig-short-pill');
+      sp.textContent = d.shortPill;
+      sp.className = 'px-2.5 py-1 rounded-full text-xs font-mono font-semibold shrink-0 ' + toneStyles(d.shortTone);
+
+      document.getElementById('sig-long-title').textContent = d.longTitle;
+      const lp = document.getElementById('sig-long-pill');
+      lp.textContent = d.longPill;
+      lp.className = 'px-2.5 py-1 rounded-full text-xs font-mono font-semibold shrink-0 ' + toneStyles(d.longTone);
+
+      document.getElementById('range-status').textContent = d.rangeStatus;
+      document.getElementById('range-marker').style.left = d.rangePos;
+      document.getElementById('range-low').textContent = d.rangeLow;
+      document.getElementById('range-mid').textContent = d.rangeMid;
+      document.getElementById('range-high').textContent = d.rangeHigh;
+
+      document.getElementById('next-action-text').textContent = d.nextAction;
+
+      document.getElementById('metrics-grid').innerHTML = d.metrics.map(m => `
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 space-y-1">
+          <div class="text-xs text-[var(--muted-foreground)]">${m.label}</div>
+          <div class="text-base font-bold font-mono tabular-nums">${m.value}</div>
+          <div class="text-xs text-[var(--muted-foreground)] truncate">${m.sub}</div>
+        </div>
+      `).join('');
+
+      setLens(currentLens);
+    }
+
+    function setLens(lens) {
+      currentLens = lens;
+      ['flow', 'cta', 'macro'].forEach(l => {
+        const btn = document.getElementById('lens-' + l);
+        if (l === lens) {
+          btn.className = 'px-3 py-1.5 rounded-lg font-semibold bg-[var(--card)] text-[var(--foreground)] shadow-sm transition flex-1 sm:flex-none';
+        } else {
+          btn.className = 'px-3 py-1.5 rounded-lg font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition flex-1 sm:flex-none';
+        }
+      });
+
+      const content = DATA[currentId].lenses[lens];
+      const box = document.getElementById('lens-content');
+      box.classList.remove('fade-in');
+      void box.offsetWidth;
+      box.classList.add('fade-in');
+
+      document.getElementById('lens-headline').textContent = content.headline;
+      document.getElementById('lens-tag').textContent = content.tag;
+      document.getElementById('lens-body').textContent = content.body;
+    }
+
+    function renderMatrix() {
+      const list = document.getElementById('matrix-list');
+      list.innerHTML = Object.keys(DATA).map(id => {
+        const d = DATA[id];
+        return `
+          <div onclick="jumpToSymbol('${id}')" class="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 cursor-pointer hover:opacity-80 transition">
+            <div class="space-y-0.5">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-sm">${d.title}</span>
+                <span class="text-xs font-mono text-[var(--muted-foreground)]">${d.price} ${d.unit}</span>
+              </div>
+              <p class="text-xs text-[var(--muted-foreground)]">${d.rangeStatus}</p>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <span class="px-2.5 py-1 rounded-full text-xs font-mono font-semibold ${toneStyles(d.shortTone)}">短期: ${d.shortPill}</span>
+              <span class="px-2.5 py-1 rounded-full text-xs font-mono font-semibold ${toneStyles(d.longTone)}">中長期: ${d.longPill}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function jumpToSymbol(id) {
+      setRegion('ALL');
+      selectSymbol(id);
+      setMainView('signal');
+    }
+
+    function setMainView(view) {
+      document.getElementById('view-signal').classList.toggle('hidden', view !== 'signal');
+      document.getElementById('nav-area').classList.toggle('hidden', view !== 'signal');
+      document.getElementById('view-matrix').classList.toggle('hidden', view !== 'matrix');
+      document.getElementById('view-events').classList.toggle('hidden', view !== 'events');
+
+      ['signal', 'matrix', 'events'].forEach(v => {
+        const btn = document.getElementById('nav-' + v);
+        btn.className = (v === view)
+          ? 'px-3.5 py-1 rounded-full font-medium bg-[var(--foreground)] text-[var(--background)] transition'
+          : 'px-3.5 py-1 rounded-full font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition';
+      });
+      if (view === 'matrix') renderMatrix();
+    }
+
+    setRegion('ALL');
+    selectSymbol('AMZN');
+  </script>
+</body>
+</html>
