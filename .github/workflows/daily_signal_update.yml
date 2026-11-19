@@ -1,17 +1,16 @@
-name: ProFlow 24/7 Market Signal Update
+name: ProFlow 24/7 Market Signal Update & LINE Push
 
 on:
   schedule:
-    # 毎日 朝 07:00 JST (22:00 UTC) と 夜 21:00 JST (12:00 UTC) に自動実行（PCがスリープでもクラウド上で稼働）
-    - cron: '0 22 * * *'
-    - cron: '0 12 * * *'
-  workflow_dispatch: # スマホやブラウザから手動で「今すぐ更新」を押すことも可能
+    - cron: '0 23 * * *'
+    - cron: '0 13 * * *'
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  analyze-and-publish:
+  analyze-and-notify:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -22,13 +21,7 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Run ProFlow Signal Analyzer
-        run: python cloud_analyzer.py
-
-      - name: Commit & Push updated signals to GitHub Pages
-        run: |
-          git config user.name "ProFlow Cloud Bot"
-          git config user.email "bot@proflow.local"
-          git add signals_data.js
-          git diff --staged --quiet || git commit -m "chore: update market signals [skip ci]"
-          git push
+      - name: Run ProFlow Signal Analyzer & Send LINE Push
+        env:
+          LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
+        run: python line_notifier.py
