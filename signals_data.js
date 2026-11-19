@@ -1,5 +1,5 @@
 window.PROFLOW_DATA = {
-  updatedAt: "2026-11-19 04:00 GMT+8",
+  updatedAt: "2026-11-19 10:52 GMT+8",
   vix: "25.46",
   symbols: {
     VWRA: {
