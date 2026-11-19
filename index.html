@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="ProFlow" />
-  <title>ProFlow — AI Investment Signal</title>
+  <title>ProFlow — Global Macro & AI Investment Signal</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
   <style>
@@ -44,27 +44,94 @@
   <div class="max-w-3xl mx-auto space-y-5">
 
     <!-- Minimal Top Bar -->
-    <header class="flex items-center justify-between">
+    <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <div class="flex items-center gap-2.5">
         <div class="w-2 h-2 rounded-full bg-[var(--success)]"></div>
         <span class="text-sm font-semibold tracking-tight">ProFlow</span>
-        <span class="text-xs text-[var(--muted-foreground)] font-mono">VIX 25.46 • 15銘柄</span>
+        <span class="text-xs text-[var(--muted-foreground)] font-mono">US10Y 5.05% • DXY 103.97 • VIX 24.55</span>
       </div>
-      <div class="flex items-center gap-1 bg-[var(--card)] border border-[var(--border)] p-1 rounded-full text-xs">
-        <button onclick="setMainView('signal')" id="nav-signal" class="px-3 py-1 rounded-full font-medium bg-[var(--foreground)] text-[var(--background)] transition">シグナル</button>
-        <button onclick="setMainView('picks')" id="nav-picks" class="px-3 py-1 rounded-full font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition">🏆 今買うべき5選</button>
-        <button onclick="setMainView('matrix')" id="nav-matrix" class="px-3 py-1 rounded-full font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition">一覧</button>
+      <div class="flex items-center gap-1 bg-[var(--card)] border border-[var(--border)] p-1 rounded-full text-xs overflow-x-auto no-scrollbar">
+        <button onclick="setMainView('macro')" id="nav-macro" class="px-3 py-1 rounded-full font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition shrink-0">🌐 市場の大きな流れ</button>
+        <button onclick="setMainView('signal')" id="nav-signal" class="px-3 py-1 rounded-full font-medium bg-[var(--foreground)] text-[var(--background)] transition shrink-0">📈 チャート＆分析</button>
+        <button onclick="setMainView('picks')" id="nav-picks" class="px-3 py-1 rounded-full font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition shrink-0">🏆 今買うべき5選</button>
+        <button onclick="setMainView('matrix')" id="nav-matrix" class="px-3 py-1 rounded-full font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition shrink-0">全25一覧</button>
       </div>
     </header>
 
-    <!-- Region Filter + Ticker Bar -->
+    <!-- VIEW 0: MACRO OVERVIEW (プロ目線のマーケットの大きな流れ・概観) -->
+    <main id="view-macro" class="hidden space-y-5 fade-in">
+      <!-- Top Macro Regime Card -->
+      <section class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5 sm:p-6 space-y-4">
+        <div class="flex items-center justify-between gap-2">
+          <span class="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-[var(--warning)]/15 text-[var(--warning)] border border-[var(--warning)]/30">GLOBAL MACRO REGIME • 2026-11-19</span>
+          <span class="text-xs font-mono text-[var(--muted-foreground)]">TradingView Cross-Asset Sync</span>
+        </div>
+        <h2 id="macro-title" class="text-lg sm:text-xl font-bold tracking-tight leading-snug"></h2>
+        <p id="macro-summary" class="text-xs sm:text-sm text-[var(--muted-foreground)] leading-relaxed"></p>
+
+        <!-- Key Macro Ticker Strip (Tap to jump to chart) -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2">
+          <div onclick="jumpToSymbol('TLT')" class="p-3 rounded-xl bg-[var(--background)] border border-[var(--card-border)] cursor-pointer hover:border-[var(--primary)] transition">
+            <div class="text-xs text-[var(--muted-foreground)]">🏦 米10年債 / TLT</div>
+            <div class="text-sm font-bold font-mono mt-0.5">5.052% <span class="text-xs text-[var(--success)]">TLT +0.84%</span></div>
+            <div class="text-xs text-[var(--muted-foreground)] mt-0.5">日10年債: 2.835%</div>
+          </div>
+          <div onclick="jumpToSymbol('DXY')" class="p-3 rounded-xl bg-[var(--background)] border border-[var(--card-border)] cursor-pointer hover:border-[var(--primary)] transition">
+            <div class="text-xs text-[var(--muted-foreground)]">💱 ドル指数 (DXY)</div>
+            <div class="text-sm font-bold font-mono mt-0.5">103.97 <span class="text-xs text-[var(--warning)]">RSI 71.3</span></div>
+            <div class="text-xs text-[var(--muted-foreground)] mt-0.5">19ヶ月高値・ピーク接近</div>
+          </div>
+          <div onclick="jumpToSymbol('GOLD')" class="p-3 rounded-xl bg-[var(--background)] border border-[var(--card-border)] cursor-pointer hover:border-[var(--primary)] transition">
+            <div class="text-xs text-[var(--muted-foreground)]">🪙 GOLD / 原油</div>
+            <div class="text-sm font-bold font-mono mt-0.5">3,711 <span class="text-xs text-[var(--warning)]">RSI 29.3</span></div>
+            <div class="text-xs text-[var(--muted-foreground)] mt-0.5">WTI原油: 81.95 (-16.7% 1M)</div>
+          </div>
+          <div onclick="jumpToSymbol('USDJPY')" class="p-3 rounded-xl bg-[var(--background)] border border-[var(--card-border)] cursor-pointer hover:border-[var(--primary)] transition">
+            <div class="text-xs text-[var(--muted-foreground)]">💱 USD/JPY & SGD</div>
+            <div class="text-sm font-bold font-mono mt-0.5">159.53円 <span class="text-xs text-[var(--success)]">Strong Buy</span></div>
+            <div class="text-xs text-[var(--muted-foreground)] mt-0.5">USD/SGD: 1.2904</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4 Cross-Asset Pillars Breakdown -->
+      <section class="grid grid-cols-1 sm:grid-cols-2 gap-3.5" id="macro-pillars"></section>
+
+      <!-- Money Flow Map: Where Institutional Money is Leaving vs Entering -->
+      <section class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5 sm:p-6 space-y-4">
+        <h3 class="text-sm font-bold">🔄 機関投資家の資金ローテーション見取り図（タップで各チャートへ）</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--error)]/30 space-y-2">
+            <div class="font-bold text-[var(--error)]">💸 現在資金が抜けている場所（換金売り・逆風）</div>
+            <ul class="space-y-1.5 text-[var(--muted-foreground)]">
+              <li onclick="jumpToSymbol('SOXX')" class="cursor-pointer hover:underline">• <strong>半導体・台湾/日経225 (SOXX / 1329)</strong>：1ヶ月-16.7%。Anthropic IPO資金捻出の利確売り＆台湾株今日-4.8%。</li>
+              <li onclick="jumpToSymbol('GOOG')" class="cursor-pointer hover:underline">• <strong>株主軽視のテック株 (GOOG)</strong>：6ヶ月-27.3%。高値新株発行×安値自社株売りでプロが離反。</li>
+              <li onclick="jumpToSymbol('GOLD')" class="cursor-pointer hover:underline">• <strong>貴金属・銅 (GOLD / CPER)</strong>：米金利5%＋ドル高(DXY 103.97)で投げ売り（ただしRSI 23〜29で売られすぎ極致）。</li>
+            </ul>
+          </div>
+          <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--success)]/30 space-y-2">
+            <div class="font-bold text-[var(--success)]">💰 現在プロの資金が集まっている場所（買い・逃避先）</div>
+            <ul class="space-y-1.5 text-[var(--muted-foreground)]">
+              <li onclick="jumpToSymbol('8058')" class="cursor-pointer hover:underline">• <strong>高還元バリュー・商社 (8058 三菱商事)</strong>：1兆円自社株買い＋円安(159.5円)追い風で全MA上の独歩高。</li>
+              <li onclick="jumpToSymbol('AMZN')" class="cursor-pointer hover:underline">• <strong>純粋AIクラウド・宇宙AI (AMZN / SPCX / TSLA)</strong>：Anthropic $110B契約のAmazonと宇宙DC構想のSpaceXに資金集中。</li>
+              <li onclick="jumpToSymbol('D05')" class="cursor-pointer hover:underline">• <strong>高金利恩恵の売られすぎ銀行＆米国債 (D05 / TLT)</strong>：RSI 19.9で200日線到達のDBS銀行と、利回り5.05%の米国債(TLT)。</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Region / Asset Class Filter + Ticker Bar -->
     <div id="nav-area" class="space-y-2.5">
       <div class="flex items-center gap-1.5 text-xs overflow-x-auto no-scrollbar">
-        <button onclick="setRegion('ALL')" id="reg-ALL" class="px-2.5 py-1 rounded-lg font-medium transition">すべて (15)</button>
+        <button onclick="setRegion('ALL')" id="reg-ALL" class="px-2.5 py-1 rounded-lg font-medium transition">すべて (25)</button>
         <button onclick="setRegion('US')" id="reg-US" class="px-2.5 py-1 rounded-lg font-medium transition">🇺🇸 米個別株・宇宙 (4)</button>
-        <button onclick="setRegion('ETF')" id="reg-ETF" class="px-2.5 py-1 rounded-lg font-medium transition">🌍 米・世界・欧州ETF (5)</button>
+        <button onclick="setRegion('ETF')" id="reg-ETF" class="px-2.5 py-1 rounded-lg font-medium transition">🌍 株・半導体ETF (6)</button>
         <button onclick="setRegion('SG')" id="reg-SG" class="px-2.5 py-1 rounded-lg font-medium transition">🇸🇬 シンガポール株 (2)</button>
         <button onclick="setRegion('JP')" id="reg-JP" class="px-2.5 py-1 rounded-lg font-medium transition">🇯🇵 日本株・ETF (4)</button>
+        <button onclick="setRegion('BOND')" id="reg-BOND" class="px-2.5 py-1 rounded-lg font-medium transition">🏦 債券・金利 (2)</button>
+        <button onclick="setRegion('COMMODITY')" id="reg-COMMODITY" class="px-2.5 py-1 rounded-lg font-medium transition">🪙 コモディティ (3)</button>
+        <button onclick="setRegion('FX')" id="reg-FX" class="px-2.5 py-1 rounded-lg font-medium transition">💱 為替 FX (4)</button>
       </div>
       <nav id="ticker-bar" class="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5"></nav>
     </div>
@@ -157,7 +224,7 @@
           <div class="inline-flex bg-[var(--background)] border border-[var(--card-border)] p-1 rounded-xl text-xs">
             <button onclick="setLens('flow')" id="lens-flow" class="px-3 py-1.5 rounded-lg font-medium transition flex-1 sm:flex-none">① 資金フロー</button>
             <button onclick="setLens('cta')" id="lens-cta" class="px-3 py-1.5 rounded-lg font-medium transition flex-1 sm:flex-none">② チャート</button>
-            <button onclick="setLens('macro')" id="lens-macro" class="px-3 py-1.5 rounded-lg font-medium transition flex-1 sm:flex-none">③ ニュース</button>
+            <button onclick="setLens('macro')" id="lens-macro" class="px-3 py-1.5 rounded-lg font-medium transition flex-1 sm:flex-none">③ マクロ・指標</button>
           </div>
         </div>
 
@@ -185,8 +252,8 @@
     <main id="view-picks" class="hidden space-y-4 fade-in">
       <section class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5 sm:p-6 space-y-4">
         <div>
-          <h2 class="text-base font-bold">🏆 中長期目線で「今」買うべき銘柄ランキング</h2>
-          <p class="text-xs text-[var(--muted-foreground)] mt-0.5">機関投資家の資金流入・岩盤サポート到達・資本政策の誠実さで厳選（タップで詳細チャートへ）</p>
+          <h2 class="text-base font-bold">🏆 中長期目線で「今」買うべき銘柄ランキング（クロスアセット版）</h2>
+          <p class="text-xs text-[var(--muted-foreground)] mt-0.5">株・債券・コモディティ・為替の全25銘柄からプロの資金流入と岩盤サポートで厳選</p>
         </div>
 
         <div class="space-y-3 text-xs">
@@ -195,7 +262,7 @@
               <span class="font-bold text-sm text-[var(--success)]">🥇 1位：三菱商事 (8058) • 5,089円</span>
               <span class="px-2.5 py-0.5 rounded-full font-mono bg-[var(--success)]/15 text-[var(--success)]">Strong Buy</span>
             </div>
-            <p class="text-[var(--muted-foreground)] leading-relaxed">1兆円の自社株買い＋増配で株主還元が完璧。半導体（SOX指数）調整の影響を受けず、全15銘柄で唯一すべての移動平均線の上で推移する最強トレンド。5,040〜5,089円で第1弾。</p>
+            <p class="text-[var(--muted-foreground)] leading-relaxed">1兆円の自社株買い＋159.5円の円安追い風。半導体調整（台湾株-4.8%）と無縁で全移動平均線の上を走る最強トレンド。</p>
           </div>
 
           <div onclick="jumpToSymbol('D05')" class="p-4 rounded-xl bg-[var(--background)] border border-[var(--success)]/40 cursor-pointer hover:opacity-90 transition space-y-1.5">
@@ -203,7 +270,7 @@
               <span class="font-bold text-sm text-[var(--success)]">🥈 2位：DBS Group (D05) • 66.55 SGD</span>
               <span class="px-2.5 py-0.5 rounded-full font-mono bg-[var(--success)]/15 text-[var(--success)]">RSI 19.9 黄金押し目</span>
             </div>
-            <p class="text-[var(--muted-foreground)] leading-relaxed">日足RSI 19.89は数年に一度の売られすぎクライマックス。日足200SMA(66.72)と週足50EMA(65.96)が重なる岩盤サポートに到達し、Citi目標株価(78 SGD)まで+17%余地。</p>
+            <p class="text-[var(--muted-foreground)] leading-relaxed">米金利5.05%は銀行の金利収入に追い風。日足RSI 19.89の売られすぎ極致＋日足200SMA(66.72)・週足50EMA(65.96)の岩盤到達。</p>
           </div>
 
           <div onclick="jumpToSymbol('AMZN')" class="p-4 rounded-xl bg-[var(--background)] border border-[var(--success)]/40 cursor-pointer hover:opacity-90 transition space-y-1.5">
@@ -211,15 +278,15 @@
               <span class="font-bold text-sm text-[var(--success)]">🥉 3位：Amazon (AMZN) • 257.89 USD</span>
               <span class="px-2.5 py-0.5 rounded-full font-mono bg-[var(--success)]/15 text-[var(--success)]">AIクラウド本命</span>
             </div>
-            <p class="text-[var(--muted-foreground)] leading-relaxed">Anthropic上場の最大の恩恵銘柄（AWSに1,100億ドル発注コミット）。Googleと対照的に資本政策と収益化が堅調で、日足・週足ともに「買い」判定を維持。</p>
+            <p class="text-[var(--muted-foreground)] leading-relaxed">Anthropic IPOの最大恩恵（AWSに1,100億ドル発注コミット）。日足・週足ともに「買い」判定を維持する米国メガテック筆頭。</p>
           </div>
 
           <div onclick="jumpToSymbol('IVV')" class="p-4 rounded-xl bg-[var(--background)] border border-[var(--card-border)] cursor-pointer hover:opacity-90 transition space-y-1.5">
             <div class="flex items-center justify-between">
-              <span class="font-bold text-sm">🏅 4位：IVV / CSPX / VHVE（S&P500・先進国コアETF）</span>
-              <span class="px-2.5 py-0.5 rounded-full font-mono bg-[var(--warning)]/15 text-[var(--warning)]">200日線・週足50MA支持</span>
+              <span class="font-bold text-sm">🏅 4位：IVV / CSPX / VHVE ＆ 米国債 TLT（コア分散枠）</span>
+              <span class="px-2.5 py-0.5 rounded-full font-mono bg-[var(--warning)]/15 text-[var(--warning)]">200日線支持 & 金利5%</span>
             </div>
-            <p class="text-[var(--muted-foreground)] leading-relaxed">本場米国のIVVが日足200SMA(735.59)を11セント差で完璧に防衛し時間外で反発。IPO換金売りで押している今が長期コア枠の分割買い第1弾の好機。</p>
+            <p class="text-[var(--muted-foreground)] leading-relaxed">IVVは日足200SMA(735.59)を死守。さらに米10年債利回り5.05%到達で、長期米国債ETF（TLT 80.22ドル）やGOLD（RSI 29.3）の逆張り分散も有効な局面。</p>
           </div>
 
           <div onclick="jumpToSymbol('SPCX')" class="p-4 rounded-xl bg-[var(--background)] border border-[var(--card-border)] cursor-pointer hover:opacity-90 transition space-y-1.5">
@@ -227,19 +294,19 @@
               <span class="font-bold text-sm">🚀 5位（成長枠）：SpaceX (SPCX) & Tesla (TSLA)</span>
               <span class="px-2.5 py-0.5 rounded-full font-mono bg-[var(--success)]/15 text-[var(--success)]">逆行高・テーマ筆頭</span>
             </div>
-            <p class="text-[var(--muted-foreground)] leading-relaxed">SpaceXは宇宙AIデータセンター構想＆Citi目標株価280ドル（約2倍）で+3.16%の逆行高。TeslaもCybercab量産転換とSpaceX統合思惑で時間外急伸。</p>
+            <p class="text-[var(--muted-foreground)] leading-relaxed">SpaceXは宇宙AIデータセンター構想＆Citi目標株価280ドル（約2倍）で+3.16%の逆行高。TeslaもCybercab量産転換とSpaceX統合思惑で堅調。</p>
           </div>
         </div>
       </section>
     </main>
 
-    <!-- VIEW 3: ALL 15 SYMBOLS QUICK MATRIX -->
+    <!-- VIEW 3: ALL 25 SYMBOLS QUICK MATRIX -->
     <main id="view-matrix" class="hidden space-y-4 fade-in">
       <section class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5 sm:p-6 space-y-4">
         <div class="flex items-center justify-between">
           <div>
-            <h2 class="text-base font-bold">全15銘柄 シグナル比較マトリクス</h2>
-            <p class="text-xs text-[var(--muted-foreground)] mt-0.5">タップすると詳細チャート画面へ移動します</p>
+            <h2 class="text-base font-bold">全25銘柄 クロスアセット比較マトリクス</h2>
+            <p class="text-xs text-[var(--muted-foreground)] mt-0.5">株・ETF・債券・コモディティ・為替（タップで詳細チャートへ）</p>
           </div>
         </div>
         <div id="matrix-list" class="divide-y divide-[var(--card-border)] text-xs"></div>
@@ -250,421 +317,83 @@
 
   <script>
 window.PROFLOW_DATA = {
-  updatedAt: "2026-11-18 17:45 GMT+8",
-  vix: "25.46",
+  updatedAt: "2026-11-19 11:43 GMT+8",
+  vix: "24.55",
+  macroOverview: {
+    regimeTitle: "米金利5.05%・ドル一強（19ヶ月高値）× Anthropic IPO資金吸収・アジア半導体調整",
+    regimeSummary: "ウォーシュFRBのタカ派姿勢で米10年債利回りが5.052%へ上昇し、米ドル指数(DXY 103.97)が19ヶ月ぶり高値。さらにAnthropicのIPO価格決定が迫り、半導体(SOXX 1ヶ月-16.7%・台湾株今日-4.8%)やゴールド(3,711ドル・RSI 29.3)から「米ドル現金」および「高キャッシュ還元株(三菱商事・Amazon・SpaceX)」への大規模な資金移動が進行中です。",
+    pillars: [
+      {
+        title: "🏦 債券市場 (Bonds)",
+        status: "米10年債 5.052% / 日10年債 2.835%",
+        tone: "warning",
+        detail: "FRBの12月利上げ警戒で米2年債(4.789%)・10年債(5.052%)が高止まり。ただし原油(-16.7%)と銅(-13.5%)の急落でインフレ鈍化兆候が出始め、長期債ETF(TLT 80.22ドル)は日足50SMA(80.07)上で底打ち反発(+0.84%)を開始。"
+      },
+      {
+        title: "💱 為替市場 (FX)",
+        status: "DXY 103.97 / USDJPY 159.53 / SGDJPY 123.63",
+        tone: "success",
+        detail: "米金利5%とIPO決済のドル需要で全面ドル高(Strong Buy)。ドル円は200日線(158.80)の上を維持し160円に迫る。明日11/20(金)の日本10月CPIが円高巻き戻しか160円突破かの分岐点。"
+      },
+      {
+        title: "🪙 コモディティ (Commodities)",
+        status: "GOLD 3,711 (RSI 29.3) / WTI原油 81.95",
+        tone: "warning",
+        detail: "ドル高・高金利の逆風で貴金属・資源が換金売り。ゴールドは日足RSI 29.3、銅(CPER)はRSI 23.5と「極度の売られすぎ（投げ売りクライマックス）」に到達し、逆張り買い場が接近。"
+      },
+      {
+        title: "📉 株式・半導体 (Equities & SOX)",
+        status: "SOXX 1ヶ月-16.7% / 台湾株 今日-4.8%",
+        tone: "error",
+        detail: "Anthropic IPO前の半導体利確売りでSOX指数・台湾株が急落。相関の強い日経225(1329)は回復に時間がかかる一方、自社株買いの三菱商事(8058)やAWS契約のAmazon(AMZN)にプロの資金が集中。"
+      }
+    ]
+  },
   symbols: {
-    VWRA: {
-      region: 'ETF',
-      ticker: 'LSE:VWRA',
-      title: 'VWRA',
-      subtitle: 'Vanguard FTSE All-World UCITS ETF (全世界株)',
-      assetClass: '🌍 全世界株ETF',
-      price: '182.18',
-      unit: 'USD',
-      change: '-3.96 (-2.13%) • YTD +6.64%',
+    '8058': {
+      region: 'JP',
+      ticker: 'TSE:8058',
+      title: '三菱商事 (8058)',
+      subtitle: '総合商社トップ • 年初来 +40.52% • 1兆円自社株買い',
+      assetClass: '🇯🇵 日本個別株',
+      price: '5,089',
+      unit: 'JPY',
+      change: '-71 (-1.38%) • 1M +7.25%',
       isUp: false,
-      shortTitle: '様子見（200日線割れ直後）',
-      shortPill: 'Wait / Sell',
-      shortTone: 'error',
-      longTitle: '分割買い第1弾（週足50EMA到達）',
-      longPill: 'Buy Zone 1',
-      longTone: 'warning',
-      rangeStatus: '週足50EMA（181.95）の重要サポートに到達',
-      rangePos: '28%',
-      rangeLow: '175.00 (第2支持)',
-      rangeMid: '現在 182.18',
-      rangeHigh: '185.05 (200日線)',
-      lenses: {
-        flow: {
-          headline: '大型IPO前のキャッシュ捻出（換金売り）',
-          tag: '機関投資家リバランス',
-          body: 'Anthropic等の大型IPOに向け、機関投資家が利益の乗った米ハイテク株（NVDA、AAPL、MSFT等）を一部売却して現金を作る流動性ドレインが発生中。'
-        },
-        cta: {
-          headline: '日足200SMA(185.05)割れ vs 週足50EMA(181.95)',
-          tag: 'TV判定: 強い売り',
-          body: '200日線を出来高1.65倍で下抜けたためCTAの売りが出ましたが、直下の週足50EMA（181.95）とRSI 33.9で下げ止まりを試しています。'
-        },
-        macro: {
-          headline: 'VIX 25.46への上昇と11/25米コアPCE待ち',
-          tag: 'リスクオフ警戒',
-          body: '米半導体規制と日銀利上げ発言でVIXが急騰。11/25の米コアPCE通過まではプロもキャッシュ比率を高めています。'
-        }
-      },
-      nextAction: '長期枠は182ドル前後で第1弾、175〜178ドルで第2弾の分割買い。短期は185.10ドル（200日線）回復まで待機。',
-      metrics: [
-        { label: '日足 RSI (14)', value: '33.91', sub: '売られすぎ接近' },
-        { label: '週足 50EMA', value: '181.95', sub: '現在値直下の支持線' },
-        { label: '日足 200SMA', value: '185.05', sub: 'トレンド転換ライン' },
-        { label: '出来高倍率', value: '1.65x', sub: '30日平均比' }
-      ]
-    },
-    CSPX: {
-      region: 'ETF',
-      ticker: 'LSE:CSPX',
-      title: 'CSPX',
-      subtitle: 'iShares Core S&P 500 UCITS ETF (LSE上場・配当再投資)',
-      assetClass: '🇺🇸 米国株UCITS ETF',
-      price: '790.97',
-      unit: 'USD',
-      change: '-17.44 (-2.16%) • YTD +1.04%',
-      isUp: false,
-      shortTitle: '様子見（200日線攻防中）',
-      shortPill: 'Wait / Sell',
-      shortTone: 'error',
-      longTitle: '782〜791ドルで分割買い',
-      longPill: 'Buy Zone 1',
-      longTone: 'warning',
-      rangeStatus: '日足200SMA（791.46）をわずかに割り込みテスト中',
-      rangePos: '32%',
-      rangeLow: '782.63 (週足50EMA)',
-      rangeMid: '現在 790.97',
-      rangeHigh: '819.98 (日足20SMA)',
-      lenses: {
-        flow: {
-          headline: 'S&P500上位のメガテックからIPO資金へのシフト',
-          tag: '米機関投資家リバランス',
-          body: 'S&P500の3割以上を占める大型テック株が、Anthropic IPOの資金作りとヘッジファンドの11月決算期リバランスの対象となり、指数を押し下げています。'
-        },
-        cta: {
-          headline: '日足200SMA（791.46）と週足50EMA（782.63）の挟み撃ち',
-          tag: 'TV判定: 強い売り',
-          body: '現在値790.97は日足200SMA（791.46）のわずか0.5ドル下。下には強力な週足50EMA（782.63）と週足50SMA（782.27）が控えており、下値余地は限定的です。'
-        },
-        macro: {
-          headline: '11/25の米コアPCE・GDP改定値が最大のカタリスト',
-          tag: '米インフレ・金利',
-          body: 'RSIは34.19まで低下。来週水曜の米PCEが無難に通過すれば、年末ラリーに向けた機関投資家の買い戻しが入りやすい位置です。'
-        }
-      },
-      nextAction: '790ドル前後（日足200SMA付近）と782ドル前後（週足50EMA）の2段階での押し目買いがプロの王道エントリーです。',
-      metrics: [
-        { label: '日足 RSI (14)', value: '34.19', sub: '売られすぎ圏接近' },
-        { label: '日足 200SMA', value: '791.46', sub: '現在値とほぼ同水準' },
-        { label: '週足 50EMA', value: '782.63', sub: '強力な岩盤サポート' },
-        { label: '出来高倍率', value: '1.13x', sub: 'パニック売りではない' }
-      ]
-    },
-    IVV: {
-      region: 'ETF',
-      ticker: 'AMEX:IVV',
-      title: 'IVV (S&P 500)',
-      subtitle: 'iShares Core S&P 500 ETF (米NYSE上場 • 純資産8,606億ドル)',
-      assetClass: '🇺🇸 米国株ETF',
-      price: '735.70',
-      unit: 'USD',
-      change: '-7.63 (-1.03%) • 時間外 740.47 (+0.65%)',
-      isUp: false,
-      shortTitle: '200SMA(735.59)ピタリ防衛・反発兆候',
-      shortPill: 'Hold 200SMA',
-      shortTone: 'warning',
-      longTitle: '728〜735ドルは絶好の分割買い場',
-      longPill: 'Buy Zone 1',
-      longTone: 'success',
-      rangeStatus: '日足200SMA（735.59）で1セント単位のサポート成功、時間外で740ドルへ反発中',
-      rangePos: '38%',
-      rangeLow: '727.89 (週足50EMA)',
-      rangeMid: '現在 735.70',
-      rangeHigh: '759.27 (日足20SMA)',
-      lenses: {
-        flow: {
-          headline: 'ヘッジファンドのAI株売りを、個人・長期年金のETF買いが吸収',
-          tag: 'Benzinga報道・資金流入',
-          body: 'ヘッジファンドがAI株のウェイトを落とす一方、長期投資家はIVVなどの低コストS&P500 ETFへ数十億ドル規模の押し目買いを入れています（出来高も0.87倍と冷静）。'
-        },
-        cta: {
-          headline: '日足200SMA（735.59）とピボットS2（734.67）で完璧に下げ止まる',
-          tag: '200日線死守！',
-          body: '欧州時間のCSPXは200日線をわずかに割りましたが、本場米国のIVVは終値735.70で日足200SMA（735.59）を死守し、時間外取引では740.47（+0.65%）へ反発しています。'
-        },
-        macro: {
-          headline: '週足50EMA（727.89）が直下に控え、リスクリワードが極めて良好',
-          tag: 'YTD +6.82%',
-          body: 'もし11/25の米コアPCE前に再度押しても727〜728ドルの週足50MAが強力なフロアになります。※非米国居住者の場合は配当課税・遺産税の面でCSPXの方が有利なケースが多い点も比較ポイント。'
-        }
-      },
-      nextAction: '735ドル（日足200SMA）での反発が確認されつつあります。735ドル前後で第1弾、万一728ドル（週足50EMA）まで押せば第2弾を入れる戦略が有効です。',
-      metrics: [
-        { label: '日足 200SMA', value: '735.59', sub: '終値735.70でピタリ支持' },
-        { label: '時間外気配', value: '740.47', sub: '+0.65% 反発スタート' },
-        { label: '週足 50EMA', value: '727.89', sub: '直下の最終防衛ライン' },
-        { label: '日足 RSI (14)', value: '37.45', sub: 'パニック感なし' }
-      ]
-    },
-    VHVE: {
-      region: 'ETF',
-      ticker: 'LSE:VHVE',
-      title: 'VHVE',
-      subtitle: 'Vanguard FTSE Developed World UCITS ETF (先進国株)',
-      assetClass: '🌍 先進国株ETF',
-      price: '145.10',
-      unit: 'USD',
-      change: '-3.22 (-2.17%) • YTD +6.77%',
-      isUp: false,
-      shortTitle: '様子見（200日線146.5割れ）',
-      shortPill: 'Wait / Sell',
-      shortTone: 'error',
-      longTitle: '144.2〜145.1で分割買い好機',
-      longPill: 'Buy Zone 1',
-      longTone: 'warning',
-      rangeStatus: '週足50EMA（144.20）のすぐ上まで調整完了',
-      rangePos: '30%',
-      rangeLow: '144.20 (週足50EMA)',
-      rangeMid: '現在 145.10',
-      rangeHigh: '146.52 (日足200SMA)',
-      lenses: {
-        flow: {
-          headline: '新興国を含まない分、VWRAより出来高が落ち着いている',
-          tag: '出来高 0.79x (低調)',
-          body: 'VWRA（出来高1.65倍）と異なり、VHVEの出来高は平均の0.79倍と少なく、機関投資家の投げ売りではなく「買い手控えによる自然落下」に近い状態です。'
-        },
-        cta: {
-          headline: '週足50EMA（144.20）と週足50SMA（144.64）が直下に待機',
-          tag: 'TV判定: 強い売り',
-          body: '日足200SMA（146.52）は割ったものの、あと0.5〜0.9ドル下に週足の50日移動平均線ペア（144.20〜144.64）が控えており、テクニカル的な支持帯のど真ん中です。'
-        },
-        macro: {
-          headline: '中国・新興国リスクを除外したいプロが選好',
-          tag: '先進国コア資産',
-          body: '中国の鉱工業生産・小売売上高の下振れを受け、新興国を除く先進国のみのVHVEは中長期の押し目買い対象として安心感があります。'
-        }
-      },
-      nextAction: '144.20〜145.00ドルのゾーンは週足50MAサポート帯のため、中長期の積立・押し目買い第1弾として非常に魅力的な水準です。',
-      metrics: [
-        { label: '日足 RSI (14)', value: '34.53', sub: '売られすぎ接近' },
-        { label: '週足 50EMA', value: '144.20', sub: '直下の強力サポート' },
-        { label: '日足 200SMA', value: '146.52', sub: '短期奪還ターゲット' },
-        { label: '出来高倍率', value: '0.79x', sub: '売り圧力は限定的' }
-      ]
-    },
-    FGM: {
-      region: 'ETF',
-      ticker: 'NASDAQ:FGM',
-      title: 'FGM (ドイツ株ETF)',
-      subtitle: 'First Trust Germany AlphaDEX Fund • 経費率 0.80%',
-      assetClass: '🇩🇪 欧州・ドイツ株ETF',
-      price: '57.84',
-      unit: 'USD',
-      change: '-0.42 (-0.72%) • 6M -10.06%',
-      isUp: false,
-      shortTitle: '売り・見送り（全移動平均線の下）',
-      shortPill: 'Avoid / Sell',
-      shortTone: 'error',
-      longTitle: '様子見（流動性極薄・経費率高）',
-      longPill: 'Low Liquidity',
-      longTone: 'error',
-      rangeStatus: '日足200SMA（62.93）および週足50EMA（60.64）を大幅に下回る下落トレンド',
-      rangePos: '20%',
-      rangeLow: '52.11 (週足200EMA)',
-      rangeMid: '現在 57.84',
-      rangeHigh: '60.64 (週足50EMA)',
-      lenses: {
-        flow: {
-          headline: '純資産わずか2,062万ドル・直近出来高137株と機関投資家が不在',
-          tag: '流動性リスク大',
-          body: 'プロの目線で最も警戒すべきは「流動性の薄さ」と「経費率0.80%の高さ（CSPXは0.07%）」です。大口資金が入っておらず、売買スプレッドで不利になりやすい銘柄です。'
-        },
-        cta: {
-          headline: '日足・週足ともに「売り」判定、20・50・100・200日線すべてが上値抵抗',
-          tag: '下降トレンド継続',
-          body: '現在値57.84は日足200SMA（62.93）や週足50EMA（60.64）よりはるか下に位置しており、週足200EMA（52.11）付近まで強いサポートが見当たりません。'
-        },
-        macro: {
-          headline: 'フランス選挙を巡るEU資金調達懸念とドイツ製造業の停滞',
-          tag: '11/23 ドイツPMI注目',
-          body: 'ドイツZEW景気指数は改善したものの、欧州政治リスクが重し。来週11/23（月）のドイツ製造業PMI速報値と60.64ドル（週足50EMA）奪還までは手出し無用です。'
-        }
-      },
-      nextAction: 'プロ目線では、高コスト（0.80%）かつ下降トレンドのFGMに資金を入れるよりも、米国・先進国（IVV/CSPX/VHVE）や三菱商事・DBSに資金を集中する方が効率的です。',
-      metrics: [
-        { label: 'TV判定 (日/週)', value: '売り / 売り', sub: '14本中14本のMAが売り' },
-        { label: '日足 200SMA', value: '62.93', sub: '現在値より8%上' },
-        { label: '経費率 / AUM', value: '0.80%', sub: '純資産 $20.6M (極小)' },
-        { label: '直近出来高', value: '137株', sub: '流動性枯渇に注意' }
-      ]
-    },
-    AMZN: {
-      region: 'US',
-      ticker: 'NASDAQ:AMZN',
-      title: 'Amazon (AMZN)',
-      subtitle: 'Anthropic最大の後ろ盾（1,100億ドルAWS契約）• YTD +11.48%',
-      assetClass: '🇺🇸 米国メガテック',
-      price: '257.89',
-      unit: 'USD',
-      change: '+0.14 (+0.05%) • 時間外 260.32 (+0.94%)',
-      isUp: true,
-      shortTitle: '買い（全主要MAの上を維持）',
-      shortPill: 'Buy',
+      shortTitle: '押し目買い（20日線サポート）',
+      shortPill: 'Buy Dip',
       shortTone: 'success',
-      longTitle: '強い買い（Anthropic上場の最大恩恵）',
+      longTitle: '強い買い（日足・週足ともにBuy）',
       longPill: 'Strong Buy',
       longTone: 'success',
-      rangeStatus: '市場全体が崩れる中でプラス引け、日足・週足ともにTradingView判定は「買い」',
-      rangePos: '72%',
-      rangeLow: '247.44 (日足200EMA)',
-      rangeMid: '現在 257.89',
-      rangeHigh: '260.67 (ピボットR1)',
+      rangeStatus: 'すべての主要移動平均線の上で推移するパーフェクトオーダー',
+      rangePos: '68%',
+      rangeLow: '4,910 (日足50SMA)',
+      rangeMid: '現在 5,089',
+      rangeHigh: '5,194 (ピボットR2)',
       lenses: {
         flow: {
-          headline: 'あなたが注目した「Anthropic上場」の裏でプロが買っている本命株！',
-          tag: 'AWS $110B コミット',
-          body: 'AnthropicはAmazon（AWS）に1,100億ドル規模のクラウド計算資源を発注済みで、Jassy CEOも「長期保有」を明言。半導体からAIソフトへ資金が移る中、プロはAmazonを「Anthropicの親玉」として買い支えています。'
+          headline: '半導体・台湾株(-4.8%)から退避した機関投資家の資金が流入する「受け皿」',
+          tag: '1兆円自社株買い',
+          body: 'ハイテク・指数ETFが軒並み200日線を割る中、三菱商事は1ヶ月で+7.25%と逆行高。1兆円規模の自社株買いと増配（125円予想）が強力な買い支え（フロア）になっています。'
         },
         cta: {
-          headline: '日足・週足ともに「買い（Buy）」判定！20・50・100・200日線すべて上向き',
-          tag: '相対的強さ (RS) 極大',
-          body: 'S&P500が-1%下がる日にプラス引けし、時間外では260.32ドル（+0.94%）へ上昇。20SMA（256.86）と50SMA（254.81）が綺麗に下値を支える上昇トレンドです。'
+          headline: 'TradingView判定：日足「買い」・週足「買い（MAは強い買い）」',
+          tag: 'パーフェクトオーダー',
+          body: '現在値5,089円は日足20EMA（5,084円）・20SMA（5,044円）のすぐ上。50日線（4,910円）・200日線（4,915円）もすべて上向きで、CTAが最も好む上昇波形です。'
         },
         macro: {
-          headline: 'NVIDIAとのパートナーシップ堅調 ＆ インド再エネ70億ドル投資',
-          tag: 'AIクラウド覇権',
-          body: 'データセンター電力確保とAIクラウド収益化の両輪が回っており、米国個別株の中で機関投資家の評価が最も安定しています。'
+          headline: '円安（USDJPY 159.53円）と通期業績上方修正が追い風',
+          tag: 'ROE 12.7%目標',
+          body: '159円台の円安基調とカナダLNG権益売却（約16億ドル）による資本効率向上で、インフレ・高金利環境に最も強いバリュー株の筆頭です。'
         }
       },
-      nextAction: '米国株の中でチャート形状がトップクラスに優秀です。254〜258ドル（20日・50日線サポート帯）での押し目買い、または260.70ドル（R1）ブレイクでの順張りが有効。',
+      nextAction: '日本株の中でプロ目線のチャート形状がダントツのNo.1です。5,040〜5,080円（20日線付近）での第1弾エントリー、4,910〜4,950円（50日線）での買い増しが有効。',
       metrics: [
-        { label: 'TV判定 (日/週)', value: '買い / 買い', sub: '指数下落に逆行高' },
-        { label: '時間外価格', value: '260.32', sub: '+0.94% ブレイク試す' },
-        { label: '日足 20/50SMA', value: '256.8 / 254.8', sub: '直下の強力サポート' },
-        { label: 'Anthropic関連', value: '$110B', sub: 'AWSクラウド契約残高' }
-      ]
-    },
-    SPCX: {
-      region: 'US',
-      ticker: 'NASDAQ:SPCX',
-      title: 'SpaceX (SPCX)',
-      subtitle: 'Space Exploration Technologies • 2026年6月IPO • 時価総額 1.92兆ドル',
-      assetClass: '🇺🇸 宇宙・AIインフラ',
-      price: '141.70',
-      unit: 'USD',
-      change: '+4.34 (+3.16%) • 時間外 142.83 (+0.80%)',
-      isUp: true,
-      shortTitle: '20日線奪還・上値ブレイク待ち',
-      shortPill: 'Watch 148.5',
-      shortTone: 'warning',
-      longTitle: '140ドル前後のベース形成から買い',
-      longPill: 'Accumulate',
-      longTone: 'success',
-      rangeStatus: '市場急落の日に+3.16%の逆行高！日足20SMA(141.27)を奪還し50SMA(148.46)に挑む',
-      rangePos: '54%',
-      rangeLow: '120.67 (ピボットS1)',
-      rangeMid: '現在 141.70',
-      rangeHigh: '148.46 (日足50SMA)',
-      lenses: {
-        flow: {
-          headline: 'GS・Apolloによる「400億ドル規模のNVIDIA半導体融資」で資金流入！',
-          tag: '1日 +3.16% 逆行高',
-          body: 'あなたが記憶されていた通り、6月のSpaceX上場時には他株が換金売りされましたが、上場後の今、SpaceX自身は「宇宙太陽光AIデータセンター構想」と740億ドル超のAIキャンパス計画で機関投資家の買いを集めています。'
-        },
-        cta: {
-          headline: '日足・週足ともに「中立（Neutral）」から上昇転換の初動',
-          tag: '20日線(141.3)突破',
-          body: '終値141.70（時間外142.83）で日足20EMA（141.59）・20SMA（141.27）を上抜け、MACDも買いシグナル点灯。次の関門である50SMA（148.46）を抜けば本格的な上昇波に入ります。'
-        },
-        macro: {
-          headline: 'Starship Flight 15成功でCitiが目標株価を280ドル（約2倍）に引き上げ',
-          tag: '目標株価 $280-$345',
-          body: 'Citiが目標株価を240→280ドルへ引き上げ、Cantorは345ドルを維持。さらにTeslaとの株式交換による統合観測ニュースも飛び交い、テーマ性は抜群です。'
-        }
-      },
-      nextAction: '140〜142ドル（20日線サポート）で第1弾を仕込み、日足50SMA（148.50ドル）を明確に上抜けたところで買い増す戦略がプロの定石です。',
-      metrics: [
-        { label: '1日騰落率', value: '+3.16%', sub: '時間外も142.83へ続伸' },
-        { label: '日足 20SMA', value: '141.27', sub: '終値で上抜け成功' },
-        { label: '日足 50SMA', value: '148.46', sub: 'ブレイク目標ライン' },
-        { label: 'Citi目標株価', value: '280.00', sub: '現在値から約2倍余地' }
-      ]
-    },
-    TSLA: {
-      region: 'US',
-      ticker: 'NASDAQ:TSLA',
-      title: 'Tesla (TSLA)',
-      subtitle: 'ロボタクシー・Cybercab転換 & SpaceX統合思惑 • 3M +12.16%',
-      assetClass: '🇺🇸 米国株・自動運転',
-      price: '380.11',
-      unit: 'USD',
-      change: '+0.37 (+0.10%) • 時間外 385.34 (+1.38%)',
-      isUp: true,
-      shortTitle: '386ドル上抜けで買いシグナル点灯',
-      shortPill: 'Watch 386.3',
-      shortTone: 'warning',
-      longTitle: '買い（週足Strong Buy・200日線支持）',
-      longPill: 'Buy',
-      longTone: 'success',
-      rangeStatus: '日足200EMA(378.78)と50SMA(375.49)に守られ、時間外で385.34へ急反発中',
-      rangePos: '58%',
-      rangeLow: '375.49 (日足50SMA)',
-      rangeMid: '現在 380.11',
-      rangeHigh: '386.26 (日足20SMA)',
-      lenses: {
-        flow: {
-          headline: '「Cybertruck終了→Cybercab量産シフト」と「SpaceX統合思惑」でプロが買い',
-          tag: '時間外 +1.38% (385.3)',
-          body: '不採算のCybertruckを来年終了し、29,990ドルのロボタクシー（Cybercab）量産へ工場を転換する決断を機関投資家が好感。さらにSpaceXとの全株買収・統合観測がショートカバーを誘発しています。'
-        },
-        cta: {
-          headline: '375〜382ドルに50日・100日・200日線が密集する「コイルばね」状態',
-          tag: '週足判定: 買い (12/14 MA)',
-          body: '週足の移動平均線は14本中12本が「買い（Strong Buy）」。時間外価格（385.34）はすでに日足200SMA（382.27）を取り戻しており、20SMA（386.26）突破目前です。'
-        },
-        macro: {
-          headline: 'テキサス州でロボタクシー1,306台登録（Waymoに肉薄）',
-          tag: '自動運転フリート拡大',
-          body: '競合であるAlphabetのWaymoがカリフォルニア州の規制で高速道路走行を一時停止したのに対し、Teslaは来月から一般オーナー車のロボタクシー試験を開始予定とモメンタムが対照的です。'
-        }
-      },
-      nextAction: '375〜380ドル（50日・200日線密集帯）は下値が堅い買い場。今夜の米国市場で386.50ドル（20SMA＆ピボットP）を上抜ければ424ドル（R1）に向けた上昇トレンド入りです。',
-      metrics: [
-        { label: '週足 TV判定', value: '買い', sub: 'MAはStrong Buy' },
-        { label: '時間外価格', value: '385.34', sub: '+1.38% (200SMA突破)' },
-        { label: '岩盤サポート', value: '375.5-378.8', sub: '50SMA & 200EMA密集' },
-        { label: 'ブレイク節目', value: '386.26', sub: '日足20SMA突破で加速' }
-      ]
-    },
-    GOOG: {
-      region: 'US',
-      ticker: 'NASDAQ:GOOG',
-      title: 'Alphabet (GOOG)',
-      subtitle: 'Alphabet Class C (Google) • 6M -27.33% • 1M -19.37%',
-      assetClass: '🇺🇸 米国メガテック',
-      price: '277.60',
-      unit: 'USD',
-      change: '-3.66 (-1.30%) • 時間外 280.72 (+1.12%)',
-      isUp: false,
-      shortTitle: '売り・下降トレンド（ナイフ回避）',
-      shortPill: 'Sell / Avoid',
-      shortTone: 'error',
-      longTitle: '底打ち確認待ち（295ドル回復まで待機）',
-      longPill: 'Wait Bottom',
-      longTone: 'warning',
-      rangeStatus: '200日線(335.79)や週足50EMA(315.36)を大きく割り込み、6ヶ月で-27%の調整中',
-      rangePos: '22%',
-      rangeLow: '250.63 (ピボットS1)',
-      rangeMid: '現在 277.60',
-      rangeHigh: '295.00 (日足20SMA)',
-      lenses: {
-        flow: {
-          headline: '高値での新株発行 vs 安値での自社株売却という「株主軽視」でプロが離反',
-          tag: 'ガバナンス不信 (1M -19.4%)',
-          body: '高値圏で新株発行（希薄化）を行いながら、その価格以下で自社株を売るような投資家に泥を塗る資本政策（キャピタルアロケーション）がウォール街の不信感を買い、1兆円自社株買いの三菱商事や堅調なAmazonとは真逆に機関投資家のボイコット（売却）対象になっています。'
-        },
-        cta: {
-          headline: '日足・週足ともに「売り」判定（移動平均線は14本すべてSell）',
-          tag: '日足 RSI 31.83',
-          body: 'RSIが31.83まで下がりMACDに短期ダイバージェンス（時間外280.72へ+1.1%反発）が出ていますが、20日線（295.00）や50日線（315.08）が頭上に重く垂れ下がっています。'
-        },
-        macro: {
-          headline: '好材料：AnthropicがGoogle Cloud/TPUに「1,213億ドル」の長期利用コミット！',
-          tag: '2033年までの巨大受注',
-          body: 'AnthropicのIPO目論見書等で、2033年までに少なくとも1,213億ドルをGoogleの計算資源（TPU）に支払う契約が判明。売られすぎが落ち着けば、この巨大受注が見直し買いのきっかけになります。'
-        }
-      },
-      nextAction: 'Anthropicの1,213億ドル契約という強力な潜在材料はありますが、チャートはまだ明確な下降トレンドです。急いで買わず、日足20SMA（295ドル）を奪還するか、週足200EMA（229〜250ドル圏）で底固めするのを待つのがプロの鉄則です。',
-      metrics: [
-        { label: '日足 RSI (14)', value: '31.83', sub: '売られすぎ圏で自律反発' },
-        { label: '日足 20SMA', value: '295.00', sub: '最初のトレンド回復条件' },
-        { label: '日足 200SMA', value: '335.79', sub: '長期トレンドは下向き' },
-        { label: 'Anthropic受注', value: '$121.3B', sub: 'TPUクラウド長期契約' }
+        { label: 'TV判定 (日/週)', value: '買い / 買い', sub: '日本株で最強波形' },
+        { label: '日足 20SMA', value: '5,044円', sub: '直下の短期サポート' },
+        { label: '日足 50/200MA', value: '4,910円', sub: '強力な下値支持帯' },
+        { label: '株主還元', value: '1兆円', sub: '大規模自社株買い' }
       ]
     },
     D05: {
@@ -700,9 +429,9 @@ window.PROFLOW_DATA = {
           body: '現在値66.55 SGDは、日足200SMA（66.72）と週足50EMA（65.96）・週足50SMA（65.07）がわずか1ドルの幅に密集する、年間で最も強いサポートゾーンです。'
         },
         macro: {
-          headline: 'Citiの目標株価は「78.00 SGD」（現在値から+17%上）',
-          tag: 'ファンダ良好',
-          body: '「与信コスト上昇で融資伸び鈍化」のニュースとCitiの目標株価微調整（80.3→78.0 SGD）で売られましたが、目標株価78ドルに対し66.5ドルは過剰反応。JPモルガンやCircleとのデジタル通貨提携も中長期の成長材料。'
+          headline: '米金利5.05%高止まりは銀行の純金利マージン(NIM)にプラス！',
+          tag: 'Citi目標 78.00 SGD',
+          body: 'FRBの利上げ観測（米10年債5.05%）はシンガポール銀行の金利収入を押し上げます。目標株価78ドルに対し66.5ドルは過剰反応で、高配当×押し目買いの好機です。'
         }
       },
       nextAction: '65.0〜66.6 SGDのゾーンは「RSI 19.9 ＋ 週足50MA ＋ 日足200MA」が重なる滅多にない押し目。中長期・高配当狙いなら分割買いの好機です。',
@@ -711,6 +440,466 @@ window.PROFLOW_DATA = {
         { label: '週足 50EMA', value: '65.96', sub: '現在値直下の岩盤' },
         { label: '日足 200SMA', value: '66.72', sub: '現在地と一致' },
         { label: 'Citi目標株価', value: '78.00', sub: '現在値から+17%余地' }
+      ]
+    },
+    AMZN: {
+      region: 'US',
+      ticker: 'NASDAQ:AMZN',
+      title: 'Amazon (AMZN)',
+      subtitle: 'Anthropic最大の後ろ盾（1,100億ドルAWS契約）• YTD +11.48%',
+      assetClass: '🇺🇸 米国メガテック',
+      price: '257.89',
+      unit: 'USD',
+      change: '+0.14 (+0.05%) • 時間外 260.32 (+0.94%)',
+      isUp: true,
+      shortTitle: '買い（全主要MAの上を維持）',
+      shortPill: 'Buy',
+      shortTone: 'success',
+      longTitle: '強い買い（Anthropic上場の最大恩恵）',
+      longPill: 'Strong Buy',
+      longTone: 'success',
+      rangeStatus: '市場全体が崩れる中でプラス引け、日足・週足ともにTradingView判定は「買い」',
+      rangePos: '72%',
+      rangeLow: '247.44 (日足200EMA)',
+      rangeMid: '現在 257.89',
+      rangeHigh: '260.67 (ピボットR1)',
+      lenses: {
+        flow: {
+          headline: '「Anthropic IPO価格決定迫る」の裏でプロが買っている本命株！',
+          tag: 'AWS $110B コミット',
+          body: 'AnthropicはAmazon（AWS）に1,100億ドル規模のクラウド計算資源を発注済み。半導体(SOXX -16.7%)からAIソフトへ資金が移る中、プロはAmazonを買い支えています。'
+        },
+        cta: {
+          headline: '日足・週足ともに「買い（Buy）」判定！20・50・100・200日線すべて上向き',
+          tag: '相対的強さ (RS) 極大',
+          body: 'S&P500が下がる日にプラス引けし、20SMA（256.86）と50SMA（254.81）が綺麗に下値を支える美しい上昇トレンドです。'
+        },
+        macro: {
+          headline: '高金利(米10年債5.05%)にも負けない圧倒的キャッシュフロー',
+          tag: 'AIクラウド覇権',
+          body: '借入依存の新興AI企業と異なり、AWSの潤沢なキャッシュフローがあるため米金利5%環境でも機関投資家が安心して保有できるコア銘柄です。'
+        }
+      },
+      nextAction: '米国株の中でチャート形状がトップクラスに優秀です。254〜258ドル（20日・50日線サポート帯）での押し目買いが有効。',
+      metrics: [
+        { label: 'TV判定 (日/週)', value: '買い / 買い', sub: '指数下落に逆行高' },
+        { label: '時間外価格', value: '260.32', sub: '+0.94% ブレイク試す' },
+        { label: '日足 20/50SMA', value: '256.8 / 254.8', sub: '直下の強力サポート' },
+        { label: 'Anthropic関連', value: '$110B', sub: 'AWSクラウド契約残高' }
+      ]
+    },
+    SPCX: {
+      region: 'US',
+      ticker: 'NASDAQ:SPCX',
+      title: 'SpaceX (SPCX)',
+      subtitle: 'Space Exploration Technologies • 2026年6月IPO • 時価総額 1.92兆ドル',
+      assetClass: '🇺🇸 宇宙・AIインフラ',
+      price: '141.70',
+      unit: 'USD',
+      change: '+4.34 (+3.16%) • 時間外 142.83 (+0.80%)',
+      isUp: true,
+      shortTitle: '20日線奪還・上値ブレイク待ち',
+      shortPill: 'Watch 148.5',
+      shortTone: 'warning',
+      longTitle: '140ドル前後のベース形成から買い',
+      longPill: 'Accumulate',
+      longTone: 'success',
+      rangeStatus: '市場急落の日に+3.16%の逆行高！日足20SMA(141.27)を奪還し50SMA(148.46)に挑む',
+      rangePos: '54%',
+      rangeLow: '120.67 (ピボットS1)',
+      rangeMid: '現在 141.70',
+      rangeHigh: '148.46 (日足50SMA)',
+      lenses: {
+        flow: {
+          headline: 'GS・Apolloによる「400億ドル規模のNVIDIA半導体融資」で資金流入！',
+          tag: '1日 +3.16% 逆行高',
+          body: 'Starshipを使った「宇宙太陽光AIデータセンター構想」と740億ドル超のAIキャンパス計画で機関投資家の買いを集めています。'
+        },
+        cta: {
+          headline: '日足20SMA（141.27）を突破し、50SMA（148.46）ブレイクを狙う初動',
+          tag: '20日線突破',
+          body: '終値141.70で日足20EMA・20SMAを上抜け、MACDも買いシグナル点灯。次の関門である50SMA（148.46）を抜けば本格的な上昇波に入ります。'
+        },
+        macro: {
+          headline: 'Starship Flight 15成功でCitiが目標株価を280ドル（約2倍）に引き上げ',
+          tag: '目標株価 $280-$345',
+          body: 'Citiが目標株価を240→280ドルへ引き上げ、Cantorは345ドルを維持。さらにTeslaとの株式交換による統合観測ニュースも追い風です。'
+        }
+      },
+      nextAction: '140〜142ドル（20日線サポート）で第1弾を仕込み、日足50SMA（148.50ドル）を明確に上抜けたところで買い増す戦略がプロの定石です。',
+      metrics: [
+        { label: '1日騰落率', value: '+3.16%', sub: '時間外も142.83へ続伸' },
+        { label: '日足 20SMA', value: '141.27', sub: '終値で上抜け成功' },
+        { label: '日足 50SMA', value: '148.46', sub: 'ブレイク目標ライン' },
+        { label: 'Citi目標株価', value: '280.00', sub: '現在値から約2倍余地' }
+      ]
+    },
+    TSLA: {
+      region: 'US',
+      ticker: 'NASDAQ:TSLA',
+      title: 'Tesla (TSLA)',
+      subtitle: 'ロボタクシー・Cybercab転換 & SpaceX統合思惑 • 3M +12.16%',
+      assetClass: '🇺🇸 米国株・自動運転',
+      price: '380.11',
+      unit: 'USD',
+      change: '+0.37 (+0.10%) • 時間外 385.34 (+1.38%)',
+      isUp: true,
+      shortTitle: '386ドル上抜けで買いシグナル点灯',
+      shortPill: 'Watch 386.3',
+      shortTone: 'warning',
+      longTitle: '買い（週足Strong Buy・200日線支持）',
+      longPill: 'Buy',
+      longTone: 'success',
+      rangeStatus: '日足200EMA(378.78)と50SMA(375.49)に守られ、時間外で385.34へ急反発中',
+      rangePos: '58%',
+      rangeLow: '375.49 (日足50SMA)',
+      rangeMid: '現在 380.11',
+      rangeHigh: '386.26 (日足20SMA)',
+      lenses: {
+        flow: {
+          headline: '「Cybertruck終了→Cybercab量産シフト」と「SpaceX統合思惑」でプロが買い',
+          tag: '時間外 +1.38% (385.3)',
+          body: '不採算のCybertruckを来年終了し、29,990ドルのロボタクシー（Cybercab）量産へ工場を転換する決断を機関投資家が好感。'
+        },
+        cta: {
+          headline: '375〜382ドルに50日・100日・200日線が密集する「コイルばね」状態',
+          tag: '週足判定: 買い (12/14 MA)',
+          body: '週足の移動平均線は14本中12本が「買い（Strong Buy）」。20SMA（386.26）を突破すれば上昇が加速します。'
+        },
+        macro: {
+          headline: 'テキサス州でロボタクシー1,306台登録（Waymoに肉薄）',
+          tag: '自動運転フリート拡大',
+          body: '競合Waymoがカリフォルニア州の規制で高速道路走行を一時停止したのに対し、Teslaは来月から一般オーナー車のロボタクシー試験を開始予定です。'
+        }
+      },
+      nextAction: '375〜380ドル（50日・200日線密集帯）は下値が堅い買い場。386.50ドル（20SMA）を上抜ければ424ドル（R1）に向けた上昇トレンド入りです。',
+      metrics: [
+        { label: '週足 TV判定', value: '買い', sub: 'MAはStrong Buy' },
+        { label: '時間外価格', value: '385.34', sub: '+1.38% (200SMA突破)' },
+        { label: '岩盤サポート', value: '375.5-378.8', sub: '50SMA & 200EMA密集' },
+        { label: 'ブレイク節目', value: '386.26', sub: '日足20SMA突破で加速' }
+      ]
+    },
+    GOOG: {
+      region: 'US',
+      ticker: 'NASDAQ:GOOG',
+      title: 'Alphabet (GOOG)',
+      subtitle: 'Alphabet Class C (Google) • 6M -27.33% • 1M -19.37%',
+      assetClass: '🇺🇸 米国メガテック',
+      price: '277.60',
+      unit: 'USD',
+      change: '-3.66 (-1.30%) • 時間外 280.72 (+1.12%)',
+      isUp: false,
+      shortTitle: '売り・下降トレンド（ナイフ回避）',
+      shortPill: 'Sell / Avoid',
+      shortTone: 'error',
+      longTitle: '底打ち確認待ち（295ドル回復まで待機）',
+      longPill: 'Wait Bottom',
+      longTone: 'warning',
+      rangeStatus: '200日線(335.79)や週足50EMA(315.36)を大きく割り込み、6ヶ月で-27%の調整中',
+      rangePos: '22%',
+      rangeLow: '250.63 (ピボットS1)',
+      rangeMid: '現在 277.60',
+      rangeHigh: '295.00 (日足20SMA)',
+      lenses: {
+        flow: {
+          headline: '高値での新株発行 vs 安値での自社株売却という「株主軽視」でプロが離反',
+          tag: 'ガバナンス不信 (1M -19.4%)',
+          body: '高値圏で新株発行（希薄化）を行いながら、その価格以下で自社株を売るような投資家に泥を塗る資本政策がウォール街の不信感を買い、1兆円自社株買いの三菱商事や堅調なAmazonとは真逆に機関投資家の売却対象になっています。'
+        },
+        cta: {
+          headline: '日足・週足ともに「売り」判定（移動平均線は14本すべてSell）',
+          tag: '日足 RSI 31.83',
+          body: 'RSIが31.83まで下がり自律反発していますが、20日線（295.00）や50日線（315.08）が頭上に重く垂れ下がっています。'
+        },
+        macro: {
+          headline: '好材料：AnthropicがGoogle Cloud/TPUに「1,213億ドル」の長期利用コミット！',
+          tag: '2033年までの巨大受注',
+          body: '2033年までに少なくとも1,213億ドルをGoogleの計算資源（TPU）に支払う契約が判明。ガバナンス不信の売りが一巡すれば見直し買いの材料になります。'
+        }
+      },
+      nextAction: 'チャートはまだ明確な下降トレンドです。急いで買わず、日足20SMA（295ドル）を奪還するか、250ドル圏で底固めするのを待つのがプロの鉄則です。',
+      metrics: [
+        { label: '日足 RSI (14)', value: '31.83', sub: '売られすぎ圏で自律反発' },
+        { label: '日足 20SMA', value: '295.00', sub: '最初のトレンド回復条件' },
+        { label: '日足 200SMA', value: '335.79', sub: '長期トレンドは下向き' },
+        { label: 'Anthropic受注', value: '$121.3B', sub: 'TPUクラウド長期契約' }
+      ]
+    },
+    IVV: {
+      region: 'ETF',
+      ticker: 'AMEX:IVV',
+      title: 'IVV (S&P 500)',
+      subtitle: 'iShares Core S&P 500 ETF (米NYSE上場 • 純資産8,606億ドル)',
+      assetClass: '🇺🇸 米国株ETF',
+      price: '735.70',
+      unit: 'USD',
+      change: '-7.63 (-1.03%) • 時間外 740.47 (+0.65%)',
+      isUp: false,
+      shortTitle: '200SMA(735.59)ピタリ防衛・反発兆候',
+      shortPill: 'Hold 200SMA',
+      shortTone: 'warning',
+      longTitle: '728〜735ドルは絶好の分割買い場',
+      longPill: 'Buy Zone 1',
+      longTone: 'success',
+      rangeStatus: '日足200SMA（735.59）で1セント単位のサポート成功、時間外で740ドルへ反発中',
+      rangePos: '38%',
+      rangeLow: '727.89 (週足50EMA)',
+      rangeMid: '現在 735.70',
+      rangeHigh: '759.27 (日足20SMA)',
+      lenses: {
+        flow: {
+          headline: 'ヘッジファンドのAI株売りを、個人・長期年金のETF買いが吸収',
+          tag: '資金流入継続',
+          body: 'ヘッジファンドがAI株のウェイトを落とす一方、長期投資家はIVVなどの低コストS&P500 ETFへ数十億ドル規模の押し目買いを入れています。'
+        },
+        cta: {
+          headline: '日足200SMA（735.59）とピボットS2（734.67）で完璧に下げ止まる',
+          tag: '200日線死守！',
+          body: '本場米国のIVVは終値735.70で日足200SMA（735.59）を死守し、時間外取引では740.47（+0.65%）へ反発しています。'
+        },
+        macro: {
+          headline: '週足50EMA（727.89）が直下に控え、リスクリワードが極めて良好',
+          tag: 'YTD +6.82%',
+          body: 'もし11/25の米コアPCE前に再度押しても727〜728ドルの週足50MAが強力なフロアになります。'
+        }
+      },
+      nextAction: '735ドル前後（日足200SMA）で第1弾、万一728ドル（週足50EMA）まで押せば第2弾を入れる戦略が有効です。',
+      metrics: [
+        { label: '日足 200SMA', value: '735.59', sub: '終値735.70でピタリ支持' },
+        { label: '時間外気配', value: '740.47', sub: '+0.65% 反発スタート' },
+        { label: '週足 50EMA', value: '727.89', sub: '直下の最終防衛ライン' },
+        { label: '日足 RSI (14)', value: '37.45', sub: 'パニック感なし' }
+      ]
+    },
+    CSPX: {
+      region: 'ETF',
+      ticker: 'LSE:CSPX',
+      title: 'CSPX (LSE S&P500)',
+      subtitle: 'iShares Core S&P 500 UCITS ETF (LSE上場・配当再投資)',
+      assetClass: '🇺🇸 米国株UCITS ETF',
+      price: '790.97',
+      unit: 'USD',
+      change: '-17.44 (-2.16%) • YTD +1.04%',
+      isUp: false,
+      shortTitle: '様子見（200日線攻防中）',
+      shortPill: 'Wait / Sell',
+      shortTone: 'error',
+      longTitle: '782〜791ドルで分割買い',
+      longPill: 'Buy Zone 1',
+      longTone: 'warning',
+      rangeStatus: '日足200SMA（791.46）をわずかに割り込みテスト中',
+      rangePos: '32%',
+      rangeLow: '782.63 (週足50EMA)',
+      rangeMid: '現在 790.97',
+      rangeHigh: '819.98 (日足20SMA)',
+      lenses: {
+        flow: {
+          headline: 'S&P500上位のメガテックからIPO資金へのシフト',
+          tag: '米機関投資家リバランス',
+          body: 'S&P500の3割以上を占める大型テック株が、Anthropic IPOの資金作りとヘッジファンドの11月決算期リバランスの対象となっています。'
+        },
+        cta: {
+          headline: '日足200SMA（791.46）と週足50EMA（782.63）の挟み撃ち',
+          tag: 'TV判定: 強い売り',
+          body: '現在値790.97は日足200SMA（791.46）のわずか0.5ドル下。下には強力な週足50EMA（782.63）が控えており、下値余地は限定的です。'
+        },
+        macro: {
+          headline: '非米国居住者にとっては配当課税・米国遺産税メリットが大',
+          tag: 'UCITSコア銘柄',
+          body: '本場米国のIVVが200日線で反発したため、ロンドン時間でも791.46ドル（200SMA）奪還が見込まれます。'
+        }
+      },
+      nextAction: '790ドル前後（日足200SMA付近）と782ドル前後（週足50EMA）の2段階での押し目買いがプロの王道エントリーです。',
+      metrics: [
+        { label: '日足 RSI (14)', value: '34.19', sub: '売られすぎ圏接近' },
+        { label: '日足 200SMA', value: '791.46', sub: '現在値とほぼ同水準' },
+        { label: '週足 50EMA', value: '782.63', sub: '強力な岩盤サポート' },
+        { label: '出来高倍率', value: '1.13x', sub: 'パニック売りではない' }
+      ]
+    },
+    VHVE: {
+      region: 'ETF',
+      ticker: 'LSE:VHVE',
+      title: 'VHVE (先進国株)',
+      subtitle: 'Vanguard FTSE Developed World UCITS ETF (先進国株)',
+      assetClass: '🌍 先進国株ETF',
+      price: '145.10',
+      unit: 'USD',
+      change: '-3.22 (-2.17%) • YTD +6.77%',
+      isUp: false,
+      shortTitle: '様子見（200日線146.5割れ）',
+      shortPill: 'Wait / Sell',
+      shortTone: 'error',
+      longTitle: '144.2〜145.1で分割買い好機',
+      longPill: 'Buy Zone 1',
+      longTone: 'warning',
+      rangeStatus: '週足50EMA（144.20）のすぐ上まで調整完了',
+      rangePos: '30%',
+      rangeLow: '144.20 (週足50EMA)',
+      rangeMid: '現在 145.10',
+      rangeHigh: '146.52 (日足200SMA)',
+      lenses: {
+        flow: {
+          headline: '新興国・台湾株(-4.8%)を含まない分、VWRAより出来高が落ち着いている',
+          tag: '出来高 0.79x (低調)',
+          body: '今日4.8%急落した台湾株（新興国扱い）を含まない先進国ETFのため、機関投資家の投げ売りが出ておらず安定した値動きです。'
+        },
+        cta: {
+          headline: '週足50EMA（144.20）と週足50SMA（144.64）が直下に待機',
+          tag: '週足サポート到達',
+          body: '日足200SMA（146.52）は割ったものの、あと0.5〜0.9ドル下に週足の50日移動平均線ペア（144.20〜144.64）が控えています。'
+        },
+        macro: {
+          headline: '中国・台湾・新興国ボラティリティを除外したいプロが選好',
+          tag: '先進国コア資産',
+          body: '先進国のみのVHVEは中長期の押し目買い対象として非常に安心感があります。'
+        }
+      },
+      nextAction: '144.20〜145.00ドルのゾーンは週足50MAサポート帯のため、中長期の積立・押し目買い第1弾として魅力的な水準です。',
+      metrics: [
+        { label: '日足 RSI (14)', value: '34.53', sub: '売られすぎ接近' },
+        { label: '週足 50EMA', value: '144.20', sub: '直下の強力サポート' },
+        { label: '日足 200SMA', value: '146.52', sub: '短期奪還ターゲット' },
+        { label: '出来高倍率', value: '0.79x', sub: '売り圧力は限定的' }
+      ]
+    },
+    VWRA: {
+      region: 'ETF',
+      ticker: 'LSE:VWRA',
+      title: 'VWRA (全世界株)',
+      subtitle: 'Vanguard FTSE All-World UCITS ETF (全世界株)',
+      assetClass: '🌍 全世界株ETF',
+      price: '182.18',
+      unit: 'USD',
+      change: '-3.96 (-2.13%) • YTD +6.64%',
+      isUp: false,
+      shortTitle: '様子見（200日線割れ直後）',
+      shortPill: 'Wait / Sell',
+      shortTone: 'error',
+      longTitle: '分割買い第1弾（週足50EMA到達）',
+      longPill: 'Buy Zone 1',
+      longTone: 'warning',
+      rangeStatus: '週足50EMA（181.95）の重要サポートに到達',
+      rangePos: '28%',
+      rangeLow: '175.00 (第2支持)',
+      rangeMid: '現在 182.18',
+      rangeHigh: '185.05 (200日線)',
+      lenses: {
+        flow: {
+          headline: '大型IPO前のキャッシュ捻出（換金売り）',
+          tag: '機関投資家リバランス',
+          body: 'Anthropic等の大型IPOに向け、機関投資家が利益の乗った米ハイテク株や台湾TSMC等を一部売却して現金を作る流動性ドレインが発生中。'
+        },
+        cta: {
+          headline: '日足200SMA(185.05)割れ vs 週足50EMA(181.95)',
+          tag: 'TV判定: 強い売り',
+          body: '200日線を出来高1.65倍で下抜けたためCTAの売りが出ましたが、直下の週足50EMA（181.95）とRSI 33.9で下げ止まりを試しています。'
+        },
+        macro: {
+          headline: 'VIX 24.55と11/25米コアPCE待ち',
+          tag: 'リスクオフ警戒',
+          body: 'VIXは昨日の25.46から24.55へ小幅低下。11/25の米コアPCE通過でアク抜けが期待されます。'
+        }
+      },
+      nextAction: '長期枠は182ドル前後で第1弾、175〜178ドルで第2弾の分割買い。短期は185.10ドル（200日線）回復まで待機。',
+      metrics: [
+        { label: '日足 RSI (14)', value: '33.91', sub: '売られすぎ接近' },
+        { label: '週足 50EMA', value: '181.95', sub: '現在値直下の支持線' },
+        { label: '日足 200SMA', value: '185.05', sub: 'トレンド転換ライン' },
+        { label: '出来高倍率', value: '1.65x', sub: '30日平均比' }
+      ]
+    },
+    SOXX: {
+      region: 'ETF',
+      ticker: 'NASDAQ:SOXX',
+      title: 'SOXX (米半導体ETF)',
+      subtitle: 'iShares Semiconductor ETF • 1M -16.73% • 日経225の先行指標',
+      assetClass: '🇺🇸 半導体セクターETF',
+      price: '141.85',
+      unit: 'USD',
+      change: '+0.39 (+0.28%) • 1M -16.73%',
+      isUp: true,
+      shortTitle: '売り・調整中（週足50EMA 151.2割れ）',
+      shortPill: 'Sector Rotation',
+      shortTone: 'error',
+      longTitle: '151ドル回復で日本株(1329)も底打ちへ',
+      longPill: 'Watch 151.2',
+      longTone: 'warning',
+      rangeStatus: '1ヶ月で-16.7%急落し200日線(160.77)と週足50EMA(151.22)を下回る',
+      rangePos: '24%',
+      rangeLow: '89.23 (週足200SMA)',
+      rangeMid: '現在 141.85',
+      rangeHigh: '151.22 (週足50EMA)',
+      lenses: {
+        flow: {
+          headline: 'まさにあなたの指摘通り！「半導体からAIソフト(Anthropic)への大移動」の震源地',
+          tag: '1ヶ月 -16.73% / 6ヶ月 -20%',
+          body: '過去1年で+52%暴騰した半導体セクターから、Anthropic IPOに向けた巨額の利益確定売りが出ています。今日台湾株が-4.8%急落したのもこのSOX指数の調整が原因です。'
+        },
+        cta: {
+          headline: '日足200SMA（160.77）も週足50EMA（151.22）も割り込む調整局面',
+          tag: '日足 RSI 38.29',
+          body: '時間外で143.10（+0.88%）と小反発していますが、頭上の151〜152ドル（週足50EMA・日足20SMA）が重いレジスタンスになっています。'
+        },
+        macro: {
+          headline: '日本株（日経225 / 1329）を買うタイミングを測る「炭鉱のカナリア」',
+          tag: '日経225の先行指標',
+          body: 'このSOXXが151.22ドル（週足50EMA）を奪還して底打ちしない限り、相関の強い日経225（1329）も本格上昇には戻れません。'
+        }
+      },
+      nextAction: '日本株（1329）や半導体株を狙う場合は、まずこのSOXXが日足20SMA（152.85ドル）・週足50EMA（151.22ドル）を回復するかを先行指標としてウォッチしてください。',
+      metrics: [
+        { label: '1ヶ月騰落率', value: '-16.73%', sub: 'AIセクター移動の震源' },
+        { label: '日足 RSI (14)', value: '38.29', sub: 'まだ底打ち未確認' },
+        { label: '週足 50EMA', value: '151.22', sub: '回復の第一関門' },
+        { label: '日足 200SMA', value: '160.77', sub: '長期トレンドライン' }
+      ]
+    },
+    FGM: {
+      region: 'ETF',
+      ticker: 'NASDAQ:FGM',
+      title: 'FGM (ドイツ株ETF)',
+      subtitle: 'First Trust Germany AlphaDEX Fund • 経費率 0.80%',
+      assetClass: '🇩🇪 欧州・ドイツ株ETF',
+      price: '57.84',
+      unit: 'USD',
+      change: '-0.42 (-0.72%) • 6M -10.06%',
+      isUp: false,
+      shortTitle: '売り・見送り（全移動平均線の下）',
+      shortPill: 'Avoid / Sell',
+      shortTone: 'error',
+      longTitle: '様子見（流動性極薄・経費率高）',
+      longPill: 'Low Liquidity',
+      longTone: 'error',
+      rangeStatus: '日足200SMA（62.93）および週足50EMA（60.64）を大幅に下回る下落トレンド',
+      rangePos: '20%',
+      rangeLow: '52.11 (週足200EMA)',
+      rangeMid: '現在 57.84',
+      rangeHigh: '60.64 (週足50EMA)',
+      lenses: {
+        flow: {
+          headline: '純資産わずか2,062万ドル・直近出来高137株と機関投資家が不在',
+          tag: '流動性リスク大',
+          body: '流動性の薄さと経費率0.80%の高さ（CSPXは0.07%）がネック。大口資金が入っておらず、スプレッドで不利になりやすい銘柄です。'
+        },
+        cta: {
+          headline: '日足・週足ともに「売り」判定、20・50・100・200日線すべてが上値抵抗',
+          tag: '下降トレンド継続',
+          body: '現在値57.84は日足200SMA（62.93）や週足50EMA（60.64）よりはるか下に位置しています。'
+        },
+        macro: {
+          headline: 'フランス選挙を巡るEU資金調達懸念とドイツ製造業の停滞',
+          tag: '11/23 ドイツPMI注目',
+          body: '来週11/23（月）のドイツ製造業PMI速報値と60.64ドル（週足50EMA）奪還までは手出し無用です。'
+        }
+      },
+      nextAction: '高コスト（0.80%）かつ下降トレンドのFGMに資金を入れるよりも、米国・先進国（IVV/CSPX/VHVE）や三菱商事・DBSに資金を集中する方が効率的です。',
+      metrics: [
+        { label: 'TV判定 (日/週)', value: '売り / 売り', sub: '14本中14本のMAが売り' },
+        { label: '日足 200SMA', value: '62.93', sub: '現在値より8%上' },
+        { label: '経費率 / AUM', value: '0.80%', sub: '純資産 $20.6M (極小)' },
+        { label: '直近出来高', value: '137株', sub: '流動性枯渇に注意' }
       ]
     },
     O39: {
@@ -738,17 +927,17 @@ window.PROFLOW_DATA = {
         flow: {
           headline: '過去1年で+49%急騰した後のスピード調整（出来高0.44倍と閑散）',
           tag: '出来高 0.44x',
-          body: '11/6の好決算（通期ガイダンス引き上げ・純金利収入23.1億ドル）で大きく買われた反動。今日の出来高は平均の半分以下（0.44倍）で、大口の投げ売りは出ていません。'
+          body: '11/6の好決算で大きく買われた反動。出来高は平均の半分以下（0.44倍）で、大口の投げ売りは出ていません。'
         },
         cta: {
           headline: 'D05と違い、200日線（26.47）までまだ約3.5%の下値余地',
           tag: 'RSI 30.96',
-          body: '日足RSIは30.96と売られすぎに近いものの、日足200EMA（26.47）・200SMA（26.01）はまだ下にあり、テクニカルな下値支持は26ドル台前半です。'
+          body: '日足200EMA（26.47）・200SMA（26.01）はまだ下にあり、テクニカルな下値支持は26ドル台前半です。'
         },
         macro: {
           headline: 'Citiの目標株価（25.30 SGD）を現在値が上回っている点に注意',
           tag: 'バリュエーション比較',
-          body: 'Citiが目標株価を26.0→25.30 SGDへ引き下げており、現在値（27.36）はアナリスト目標より高い水準です。同じシンガポール銀行を買うなら、今はD05（DBS）の方がプロ目線での割安感・反発期待が上です。'
+          body: '同じシンガポール銀行を買うなら、今はD05（DBS）の方がプロ目線での割安感・反発期待が上です。'
         }
       },
       nextAction: '今すぐ新規で買うならOCBC（O39）よりDBS（D05）が優位。O39を買う場合は200日線がある26.00〜26.50 SGDまで引きつけてから。',
@@ -757,144 +946,6 @@ window.PROFLOW_DATA = {
         { label: '日足 200EMA', value: '26.47', sub: '第1押し目ターゲット' },
         { label: '1年騰落率', value: '+49.05%', sub: '大幅上昇後の調整' },
         { label: '出来高倍率', value: '0.44x', sub: '売り圧力は弱い' }
-      ]
-    },
-    '8058': {
-      region: 'JP',
-      ticker: 'TSE:8058',
-      title: '三菱商事 (8058)',
-      subtitle: '総合商社トップ • 年初来 +40.52% • 1兆円自社株買い',
-      assetClass: '🇯🇵 日本個別株',
-      price: '5,089',
-      unit: 'JPY',
-      change: '-71 (-1.38%) • 1M +7.25%',
-      isUp: false,
-      shortTitle: '押し目買い（20日線サポート）',
-      shortPill: 'Buy Dip',
-      shortTone: 'success',
-      longTitle: '強い買い（日足・週足ともにBuy）',
-      longPill: 'Strong Buy',
-      longTone: 'success',
-      rangeStatus: 'すべての主要移動平均線の上で推移するパーフェクトオーダー',
-      rangePos: '68%',
-      rangeLow: '4,910 (日足50SMA)',
-      rangeMid: '現在 5,089',
-      rangeHigh: '5,194 (ピボットR2)',
-      lenses: {
-        flow: {
-          headline: '半導体から退避した機関投資家の資金が流入する「受け皿」',
-          tag: '1兆円自社株買い',
-          body: 'ハイテク・指数ETFが軒並み200日線を割る中、三菱商事は1ヶ月で+7.25%と逆行高。1兆円規模の自社株買いと増配（125円予想）が強力な買い支え（フロア）になっています。'
-        },
-        cta: {
-          headline: 'TradingView判定：日足「買い」・週足「買い（MAは強い買い）」',
-          tag: 'パーフェクトオーダー',
-          body: '現在値5,089円は日足20EMA（5,084円）・20SMA（5,044円）のすぐ上。50日線（4,910円）・200日線（4,915円）もすべて上向きで、CTA（トレンドフォロー）が最も好む上昇波形です。'
-        },
-        macro: {
-          headline: '通期業績上方修正 ＆ カナダLNG権益売却（約16億ドル）で資本効率向上',
-          tag: 'ROE 12.7%目標',
-          body: '資源・エネルギー価格の追い風に加え、資産入れ替えと株主還元が明確。インフレや金利上昇にも強いバリュー株の筆頭です。'
-        }
-      },
-      nextAction: '日本株の中でプロ目線のチャート形状がダントツのNo.1です。5,040〜5,080円（20日線付近）での第1弾エントリー、4,910〜4,950円（50日線）での買い増しが有効。',
-      metrics: [
-        { label: 'TV判定 (日/週)', value: '買い / 買い', sub: '日本株で最強波形' },
-        { label: '日足 20SMA', value: '5,044円', sub: '直下の短期サポート' },
-        { label: '日足 50/200MA', value: '4,910円', sub: '強力な下値支持帯' },
-        { label: '株主還元', value: '1兆円', sub: '大規模自社株買い' }
-      ]
-    },
-    '1329': {
-      region: 'JP',
-      ticker: 'TSE:1329',
-      title: '1329 (日経225 ETF)',
-      subtitle: 'iシェアーズ・コア 日経225 ETF • 信託報酬 0.05%',
-      assetClass: '🇯🇵 日本株ETF',
-      price: '6,160',
-      unit: 'JPY',
-      change: '+12 (+0.20%) • 1M -7.77%',
-      isUp: true,
-      shortTitle: '様子見（半導体・輸出株の重し）',
-      shortPill: 'Wait / Sell',
-      shortTone: 'error',
-      longTitle: '1475/1364より出遅れ（6,250回復待ち）',
-      longPill: 'Wait 6,250',
-      longTone: 'warning',
-      rangeStatus: '日足200SMA（6,469）だけでなく週足50EMA（6,249）も下回る',
-      rangePos: '25%',
-      rangeLow: '5,824 (ピボットS2)',
-      rangeMid: '現在 6,160',
-      rangeHigh: '6,249 (週足50EMA)',
-      lenses: {
-        flow: {
-          headline: '韓国・台湾株と一緒に買われすぎた反動＋SOX指数(半導体)連動で回復に時間',
-          tag: '東アジア半導体バスケット調整',
-          body: '海外勢が韓国・台湾株とセットで買い上げた反動が出ています。日経225はNASDAQや米SOX指数（半導体）との相関が極めて強く、まず米AI・半導体が底打ちしてから日本の製造装置へ資金が戻るため、本格的な再上昇までには日柄（時間）がかかります。'
-        },
-        cta: {
-          headline: '週足50EMA（6,249円）を割り込んでいる点がテクニカルの弱み',
-          tag: 'TV判定: 売り',
-          body: 'TOPIX（1475）やJPX400（1364）が週足50EMAの上を維持しているのに対し、1329は週足50EMA（6,249円）も下抜けており、3つの日本株ETFの中では一番形が弱い状態です。'
-        },
-        macro: {
-          headline: '11/20（金）の日本全国CPIと米半導体株の落ち着き待ち',
-          tag: '金曜イベント注目',
-          body: '金曜のCPIと来週の米PCEを通過して半導体セクターへの換金売りが止まれば、反発力も大きくなります。'
-        }
-      },
-      nextAction: '日本株インデックスを買うなら、今は1329（日経225）よりも銀行・商社を含む1475（TOPIX）や1364（JPX400）の方が底堅く有利です。',
-      metrics: [
-        { label: '日足 RSI (14)', value: '37.0', sub: '弱含み推移' },
-        { label: '週足 50EMA', value: '6,249円', sub: 'まず奪還すべき節目' },
-        { label: '日足 200SMA', value: '6,469円', sub: '本格トレンド転換線' },
-        { label: '1ヶ月騰落率', value: '-7.77%', sub: 'TOPIX(-4.9%)に劣後' }
-      ]
-    },
-    '1475': {
-      region: 'JP',
-      ticker: 'TSE:1475',
-      title: '1475 (TOPIX ETF)',
-      subtitle: 'iシェアーズ・コア TOPIX ETF • 純資産 3.0兆円',
-      assetClass: '🇯🇵 日本株ETF',
-      price: '396.3',
-      unit: 'JPY',
-      change: '-1.9 (-0.48%) • 1M -4.97%',
-      isUp: false,
-      shortTitle: '週足50EMA（392.6）の攻防',
-      shortPill: 'Watch 392.6',
-      shortTone: 'warning',
-      longTitle: '392〜396円で分割買い検討',
-      longPill: 'Buy Zone 1',
-      longTone: 'warning',
-      rangeStatus: '日足200EMA（398.1）直下・週足50EMA（392.6）のすぐ上で踏ん張る',
-      rangePos: '36%',
-      rangeLow: '392.6 (週足50EMA)',
-      rangeMid: '現在 396.3',
-      rangeHigh: '403.2 (日足200SMA)',
-      lenses: {
-        flow: {
-          headline: '出来高1.75倍に急増＝機関投資家のリバランス売買が活発',
-          tag: '出来高 1.75x (活況)',
-          body: '396円付近で出来高が30日平均の1.75倍（747万口）に膨らんでおり、売りたい短期筋と、200日線・週足50EMA付近で拾いたい長期機関投資家の実需がぶつかっています。'
-        },
-        cta: {
-          headline: '日足200EMA（398.1）と週足50EMA（392.6）の狭いサポート帯',
-          tag: '下値抵抗が強い',
-          body: '日経225（1329）と違い、TOPIX（1475）は週足50EMA（392.6円）をしっかりキープしています。403.2円（日足200SMA）を抜ければ一気に買い転換します。'
-        },
-        macro: {
-          headline: '日銀の利上げ姿勢は、TOPIX内の銀行・金融セクターに追い風',
-          tag: '金利ある世界',
-          body: '植田総裁の利上げ継続発言はハイテク株（日経225）には逆風ですが、メガバンクや商社（三菱商事など）の比率が高いTOPIXには下支え要因になります。'
-        }
-      },
-      nextAction: '392.6円（週足50EMA）〜396円のゾーンは長期積立・押し目買いの第1弾として好位置。金曜のCPI通過後の403円奪還で追加買い。',
-      metrics: [
-        { label: '日足 RSI (14)', value: '39.9', sub: '中立〜やや売られすぎ' },
-        { label: '週足 50EMA', value: '392.6円', sub: '現在値直下の支持線' },
-        { label: '日足 200SMA', value: '403.2円', sub: '上抜けでトレンド回復' },
-        { label: '出来高倍率', value: '1.75x', sub: '機関投資家の攻防' }
       ]
     },
     '1364': {
@@ -922,25 +973,531 @@ window.PROFLOW_DATA = {
         flow: {
           headline: '高ROE・好業績銘柄が集まるため、下落局面での耐性が最強',
           tag: '1ヶ月 -4.57% (最小)',
-          body: '1329（-7.77%）、1475（-4.97%）と比較して下落幅が最も小さく、今日の出来高も平均の0.09倍と「誰も慌てて売っていない」状態です。'
+          body: '1329（-7.77%）、1475（-4.97%）と比較して下落幅が最も小さく、誰も慌てて売っていない状態です。'
         },
         cta: {
           headline: '週足判定は「中立（Neutral）」を維持、日足200EMA（3,589）を死守',
           tag: '週足 Neutral',
-          body: '他の指数ETFが日足・週足ともに「売り」判定になる中、1364は日足200EMA（3,589円）と週足50SMA（3,585円）を割り込まずに維持しています。'
+          body: '日足200EMA（3,589円）と週足50SMA（3,585円）を割り込まずに維持しています。'
         },
         macro: {
           headline: '資本効率（ROE）と株主還元を重視する海外投資家のコア銘柄群',
           tag: 'ガバナンス銘柄',
-          body: '三菱商事（ROE 12.7%目標）のような高収益・高還元企業が中心のため、相場全体の調整が終われば真っ先に高値を更新しやすい構造です。'
+          body: '三菱商事のような高収益・高還元企業が中心のため、相場全体の調整が終われば真っ先に高値を更新しやすい構造です。'
         }
       },
-      nextAction: 'チャート形状は日本株ETFの中で一番綺麗です。ただし1日の出来高がやや少ない（流動性が薄い）ため、成行ではなく3,585〜3,595円の「指値」で買うのがプロの鉄則です。',
+      nextAction: 'チャート形状は日本株ETFの中で一番綺麗です。ただし1日の出来高がやや少ないため、成行ではなく3,585〜3,595円の「指値」で買うのがプロの鉄則です。',
       metrics: [
         { label: '週足 TV判定', value: '中立', sub: '指数ETFで唯一の底堅さ' },
         { label: '日足 200EMA', value: '3,589円', sub: '現在値(3,592)で支持' },
         { label: '週足 50SMA', value: '3,585円', sub: '強固なダブルサポート' },
         { label: '注意点', value: '指値必須', sub: '出来高が薄いため' }
+      ]
+    },
+    '1475': {
+      region: 'JP',
+      ticker: 'TSE:1475',
+      title: '1475 (TOPIX ETF)',
+      subtitle: 'iシェアーズ・コア TOPIX ETF • 純資産 3.0兆円',
+      assetClass: '🇯🇵 日本株ETF',
+      price: '396.3',
+      unit: 'JPY',
+      change: '-1.9 (-0.48%) • 1M -4.97%',
+      isUp: false,
+      shortTitle: '週足50EMA（392.6）の攻防',
+      shortPill: 'Watch 392.6',
+      shortTone: 'warning',
+      longTitle: '392〜396円で分割買い検討',
+      longPill: 'Buy Zone 1',
+      longTone: 'warning',
+      rangeStatus: '日足200EMA（398.1）直下・週足50EMA（392.6）のすぐ上で踏ん張る',
+      rangePos: '36%',
+      rangeLow: '392.6 (週足50EMA)',
+      rangeMid: '現在 396.3',
+      rangeHigh: '403.2 (日足200SMA)',
+      lenses: {
+        flow: {
+          headline: '出来高1.75倍に急増＝機関投資家のリバランス売買が活発',
+          tag: '出来高 1.75x (活況)',
+          body: '396円付近で出来高が30日平均の1.75倍に膨らんでおり、週足50EMA付近で拾いたい長期機関投資家の実需が入っています。'
+        },
+        cta: {
+          headline: '日足200EMA（398.1）と週足50EMA（392.6）の狭いサポート帯',
+          tag: '下値抵抗が強い',
+          body: '日経225（1329）と違い、TOPIX（1475）は週足50EMA（392.6円）をしっかりキープしています。'
+        },
+        macro: {
+          headline: '日本の10年債利回り2.835%＆日銀利上げ姿勢はTOPIX内の銀行株に追い風',
+          tag: '金利ある世界',
+          body: '明日11/20(金)の10月全国CPIでインフレが確認されれば、メガバンクや商社比率の高いTOPIXには下支え要因になります。'
+        }
+      },
+      nextAction: '392.6円（週足50EMA）〜396円のゾーンは長期積立・押し目買いの第1弾として好位置。金曜のCPI通過後の403円奪還で追加買い。',
+      metrics: [
+        { label: '日足 RSI (14)', value: '39.9', sub: '中立〜やや売られすぎ' },
+        { label: '週足 50EMA', value: '392.6円', sub: '現在値直下の支持線' },
+        { label: '日足 200SMA', value: '403.2円', sub: '上抜けでトレンド回復' },
+        { label: '出来高倍率', value: '1.75x', sub: '機関投資家の攻防' }
+      ]
+    },
+    '1329': {
+      region: 'JP',
+      ticker: 'TSE:1329',
+      title: '1329 (日経225 ETF)',
+      subtitle: 'iシェアーズ・コア 日経225 ETF • 信託報酬 0.05%',
+      assetClass: '🇯🇵 日本株ETF',
+      price: '6,160',
+      unit: 'JPY',
+      change: '+12 (+0.20%) • 1M -7.77%',
+      isUp: true,
+      shortTitle: '様子見（半導体・台湾株急落の重し）',
+      shortPill: 'Wait / Sell',
+      shortTone: 'error',
+      longTitle: '1475/1364より出遅れ（6,250回復待ち）',
+      longPill: 'Wait 6,250',
+      longTone: 'warning',
+      rangeStatus: '日足200SMA（6,469）だけでなく週足50EMA（6,249）も下回る',
+      rangePos: '25%',
+      rangeLow: '5,824 (ピボットS2)',
+      rangeMid: '現在 6,160',
+      rangeHigh: '6,249 (週足50EMA)',
+      lenses: {
+        flow: {
+          headline: '韓国・台湾株(今日-4.8%)と一緒に買われすぎた反動＋SOX指数連動で回復に時間',
+          tag: '東アジア半導体バスケット調整',
+          body: '海外勢が韓国・台湾株とセットで買い上げた反動が直撃。米SOXX（1ヶ月-16.7%）が底打ちしてから日本の半導体製造装置へ資金が戻るため、本格上昇までには日柄（時間）がかかります。'
+        },
+        cta: {
+          headline: '週足50EMA（6,249円）を割り込んでいる点がテクニカルの弱み',
+          tag: 'TV判定: 売り',
+          body: 'TOPIX（1475）やJPX400（1364）が週足50EMAの上を維持しているのに対し、1329は週足50EMA（6,249円）も下抜けています。'
+        },
+        macro: {
+          headline: 'ドル円159.53円の円安が下支えも、明日11/20（金）の全国CPI待ち',
+          tag: '金曜CPI注目',
+          body: '159円台の円安と日本の機械受注（Q4見通し+4.3%）が支えですが、まずSOXXの下げ止まり確認が必要です。'
+        }
+      },
+      nextAction: '日本株インデックスを買うなら、今は1329（日経225）よりも銀行・商社を含む1475（TOPIX）や1364（JPX400）の方が底堅く有利です。',
+      metrics: [
+        { label: '日足 RSI (14)', value: '37.0', sub: '弱含み推移' },
+        { label: '週足 50EMA', value: '6,249円', sub: 'まず奪還すべき節目' },
+        { label: '日足 200SMA', value: '6,469円', sub: '本格トレンド転換線' },
+        { label: '1ヶ月騰落率', value: '-7.77%', sub: 'TOPIX(-4.9%)に劣後' }
+      ]
+    },
+    TLT: {
+      region: 'BOND',
+      ticker: 'NASDAQ:TLT',
+      title: 'TLT (米20年超国債)',
+      subtitle: 'iShares 20+ Year Treasury Bond ETF • 米10年債利回り 5.052%',
+      assetClass: '🏦 米国長期債ETF',
+      price: '80.22',
+      unit: 'USD',
+      change: '+0.67 (+0.84%) • 米10年債金利 5.052%',
+      isUp: true,
+      shortTitle: '日足50SMA(80.07)上で底打ち反発開始',
+      shortPill: 'Bounce 80.0',
+      shortTone: 'warning',
+      longTitle: '米金利5%超は長期ロックインの好機',
+      longPill: 'Yield Lock-in',
+      longTone: 'success',
+      rangeStatus: '米10年債利回りが5.05%に達する中、TLTは80.07(日足50SMA)で底堅く+0.84%反発',
+      rangePos: '34%',
+      rangeLow: '78.50 (直近底値圏)',
+      rangeMid: '現在 80.22',
+      rangeHigh: '84.19 (日足200SMA)',
+      lenses: {
+        flow: {
+          headline: '米10年債利回り「5.052%」は年金・保険など長期機関投資家が債券を買い始める水準',
+          tag: '米10年債 5.052%',
+          body: 'ウォーシュFRB議長下のタカ派発言（ウォラー理事の12月利上げ支持）で米2年債(4.789%)・10年債(5.052%)が上昇しましたが、5%超の利回りは長期資金にとって極めて魅力的です。'
+        },
+        cta: {
+          headline: '日足50SMA（80.07ドル）を奪還し、5日間で+1.16%と底入れの兆し',
+          tag: '80ドル大台サポート',
+          body: '株やコモディティが荒れる中、TLTは80.07ドル（日足50SMA）の上を回復し、日足20SMA（81.06）〜200SMA（84.19）に向けたリバウンドを試しています。'
+        },
+        macro: {
+          headline: '原油(-16.7%)と銅(-13.5%)の急落＝将来のインフレ鈍化（債券高）の先行サイン',
+          tag: 'インフレピークアウト兆候',
+          body: '今日ロイターも「原油安で米利回りが低下」と報道。資源価格の下落は数ヶ月後のCPI/PCEを押し下げるため、米金利5%台での債券仕込みは理にかなっています。'
+        }
+      },
+      nextAction: '株式のヘッジ（保険）兼・高利回りロックインとして、80ドル前後での分割買い第1弾が有効。81.10ドル（20SMA）突破で底打ち確定へ。',
+      metrics: [
+        { label: '米10年債利回り', value: '5.052%', sub: '機関投資家の買い目線' },
+        { label: '米2年債利回り', value: '4.789%', sub: '長短金利差 +26.3bps' },
+        { label: '日本10年債利回り', value: '2.835%', sub: '日米金利差は約2.2%' },
+        { label: '日足 50SMA', value: '80.07', sub: '現在値直下のサポート' }
+      ]
+    },
+    IEF: {
+      region: 'BOND',
+      ticker: 'NASDAQ:IEF',
+      title: 'IEF (米7-10年国債)',
+      subtitle: 'iShares 7-10 Year Treasury Bond ETF • 中期米国債コア',
+      assetClass: '🏦 米国中期債ETF',
+      price: '90.67',
+      unit: 'USD',
+      change: '+0.26 (+0.29%) • 1M +0.39%',
+      isUp: true,
+      shortTitle: '90.47(日足50SMA)サポートで安定',
+      shortPill: 'Stable Hold',
+      shortTone: 'warning',
+      longTitle: '低ボラティリティの債券コア枠',
+      longPill: 'Accumulate',
+      longTone: 'success',
+      rangeStatus: 'TLTより値動きがマイルドで、日足50SMA（90.47）の上を着実にキープ',
+      rangePos: '40%',
+      rangeLow: '89.50 (下値支持)',
+      rangeMid: '現在 90.67',
+      rangeHigh: '93.55 (日足200SMA)',
+      lenses: {
+        flow: {
+          headline: '株式のボラティリティ（VIX 24.55）を避けたい保守的資金の待機場所',
+          tag: '5日 +0.71%',
+          body: 'S&P500が5日で-3.85%調整する中、IEFは+0.71%とプラスを維持し、本来の「株安時のクッション（分散効果）」を発揮し始めています。'
+        },
+        cta: {
+          headline: '日足50SMA（90.47）がサポート、日足20SMA（91.09）突破目前',
+          tag: 'RSI 48.38 (中立)',
+          body: '91.10ドルを上抜けると日足200SMA（93.55ドル）に向けた穏やかな回復トレンドに入ります。'
+        },
+        macro: {
+          headline: '11/25の米コアPCEが予想通りなら、中期債に買い戻しが入る公算',
+          tag: '11/25 PCE注目',
+          body: '20年超のTLTほど金利変動リスクを取りたくない場合、7-10年債のIEFが最もバランスの良い債券ETFです。'
+        }
+      },
+      nextAction: 'ポートフォリオの守りを固める債券枠として90.0〜90.7ドルで安定的に組み入れ可能。より大きな反発値幅を狙うならTLT、安定重視ならIEF。',
+      metrics: [
+        { label: '日足 50SMA', value: '90.47', sub: '現在値90.67を下支え' },
+        { label: '日足 200SMA', value: '93.55', sub: '中期回復ターゲット' },
+        { label: '日足 RSI (14)', value: '48.38', sub: '落ち着いた値動き' },
+        { label: '5日間騰落率', value: '+0.71%', sub: '株安局面で逆行プラス' }
+      ]
+    },
+    GOLD: {
+      region: 'COMMODITY',
+      ticker: 'TVC:GOLD',
+      title: 'GOLD (金スポット)',
+      subtitle: 'Spot Gold (XAU/USD) • 1M -10.39% • 14ヶ月ぶり安値圏から反発模索',
+      assetClass: '🪙 貴金属・コモディティ',
+      price: '3,711.38',
+      unit: 'USD',
+      change: '-13.72 (-0.37%) • 日足RSI 29.34',
+      isUp: false,
+      shortTitle: 'RSI 29.3 売られすぎ（3,609〜3,700模索）',
+      shortPill: 'Oversold (RSI 29)',
+      shortTone: 'warning',
+      longTitle: '3,610〜3,710ドルで逆張り分割買い',
+      longPill: 'Contrarian Buy',
+      longTone: 'warning',
+      rangeStatus: 'ドル高(DXY 103.97)と米金利5%で1ヶ月-10.4%急落し、ついに日足RSIが30割れ(29.34)へ到達',
+      rangePos: '20%',
+      rangeLow: '3,609 (テクニカル下値目標)',
+      rangeMid: '現在 3,711',
+      rangeHigh: '3,959 (日足20SMA)',
+      lenses: {
+        flow: {
+          headline: '貴金属市場全体で3.3兆ドルの時価総額減少＝機関投資家の換金売りがクライマックスへ',
+          tag: '日足 RSI 29.34！',
+          body: '米金利5.05%とドル指数103.97（19ヶ月高値）を受け、レバレッジ筋の投げ売りが出ました。しかし日足RSIが30を割る（29.34）のは歴史的にも「売りの最終局面」です。'
+        },
+        cta: {
+          headline: '3,693ドルで14ヶ月ぶり安値をつけた後、3,711ドルへ下げ渋り',
+          tag: '下値ターゲット 3,609',
+          body: 'ロイターのテクニカル分析では「3,609ドル付近が最終下値メド」。また超長期の岩盤である週足200SMA（3,040ドル）は依然として力強い上昇トレンドを維持しています。'
+        },
+        macro: {
+          headline: '米・イラン緊張（「ディール不要」発言）と欧州財政リスクは消えていない',
+          tag: '地政学ヘッジ',
+          body: 'ドル高が一服した瞬間に最も鋭く自律反発するのがRSI 30割れのゴールドです。'
+        }
+      },
+      nextAction: '一気に全力で買わず、①現在の3,700〜3,715ドル（RSI 29.3）で打診買い第1弾、②もし3,610ドル付近まで最後の突っ込みがあれば第2弾を入れる逆張り分割戦略が有効です。',
+      metrics: [
+        { label: '日足 RSI (14)', value: '29.34', sub: '30割れの売られすぎ圏！' },
+        { label: '1ヶ月騰落率', value: '-10.39%', sub: 'ドル高による急調整' },
+        { label: '短期下値メド', value: '3,609', sub: 'ロイター算出サポート' },
+        { label: '日足 20SMA', value: '3,959', sub: '反発時の戻り目標' }
+      ]
+    },
+    USOIL: {
+      region: 'COMMODITY',
+      ticker: 'TVC:USOIL',
+      title: 'WTI原油 (USOIL)',
+      subtitle: 'WTI Crude Oil • 1M -16.69% • YTD +42.55% • インフレ鎮静化の鍵',
+      assetClass: '🪙 エネルギー・原油',
+      price: '81.95',
+      unit: 'USD',
+      change: '+0.05 (+0.06%) • 先物 81.83 (-0.58%)',
+      isUp: true,
+      shortTitle: '下降トレンド（77〜78ドル模索）',
+      shortPill: 'Weak / 77-78目標',
+      shortTone: 'error',
+      longTitle: '原油安は「株・債券」にとって最大の朗報！',
+      longPill: 'Macro Indicator',
+      longTone: 'warning',
+      rangeStatus: '日足200SMA（87.92）を割り込み1ヶ月で-16.7%下落。77〜78ドルのサポート帯を試す展開',
+      rangePos: '25%',
+      rangeLow: '77.04 (下値サポート目標)',
+      rangeMid: '現在 81.95',
+      rangeHigh: '87.92 (日足200SMA)',
+      lenses: {
+        flow: {
+          headline: '米国の原油・ガソリン在庫が予想以上に増加し、供給過剰懸念でファンドが手仕舞い',
+          tag: '1ヶ月 -16.69%',
+          body: '中東の地政学リスクで年初来+42.5%上がっていた原油ですが、足元では在庫増と中国需要の鈍化からロングポジションの解消（利益確定売り）が続いています。'
+        },
+        cta: {
+          headline: '日足200SMA（87.92ドル）を下抜け、日足RSIは32.81まで低下',
+          tag: '77.04-78.18が下値メド',
+          body: 'テクニカルには77.04〜78.18ドルのサポートゾーンまであと4〜5ドルの下値余地があります（USO ETFでは週足50EMAが守られています）。'
+        },
+        macro: {
+          headline: '★プロの見方：原油が80ドル割れに向かうことは「FRBの利上げ懸念」を消す特効薬！',
+          tag: 'インフレ鎮静化',
+          body: '原油自体を買う局面ではありませんが、原油が下がることで米10年債利回り（5.05%）の上昇が止まり、S&P500（IVV/CSPX）やハイテク株の追い風になります。'
+        }
+      },
+      nextAction: '原油そのものの新規買いは77〜78ドル到達まで様子見。マクロ指標として「原油安＝株と米国債（TLT）の買いサイン」として活用するのがプロの視点です。',
+      metrics: [
+        { label: '日足 RSI (14)', value: '32.81', sub: '売られすぎに接近' },
+        { label: '日足 200SMA', value: '87.92', sub: '現在は200日線の下' },
+        { label: '下値ターゲット', value: '77.0-78.2', sub: '次の主要サポート帯' },
+        { label: 'マクロ影響', value: 'インフレ鈍化', sub: '株・債券には追い風' }
+      ]
+    },
+    CPER: {
+      region: 'COMMODITY',
+      ticker: 'AMEX:CPER',
+      title: 'CPER (銅 / Dr.Copper)',
+      subtitle: 'US Copper Index Fund • 先物 5.65 USD/lb • 世界景気の先行指標',
+      assetClass: '🪙 産業金属・コモディティ',
+      price: '34.10',
+      unit: 'USD',
+      change: '-1.89 (-5.25%) • 日足RSI 23.47',
+      isUp: false,
+      shortTitle: '極度の売られすぎ（RSI 23.5）',
+      shortPill: 'Oversold (RSI 23.5)',
+      shortTone: 'warning',
+      longTitle: 'AIデータセンター電力網の長期テーマ',
+      longPill: 'Watch Rebound',
+      longTone: 'warning',
+      rangeStatus: '1ヶ月で-13.5%急落し、銅先物(RSI 22.9)・CPER(RSI 23.5)ともに売られすぎ極致に到達',
+      rangePos: '19%',
+      rangeLow: '29.31 (週足200SMA)',
+      rangeMid: '現在 34.10',
+      rangeHigh: '37.95 (日足200SMA)',
+      lenses: {
+        flow: {
+          headline: '「ドクター・カッパー（銅）」の急落は、世界経済の減速とインフレ鎮静化を示唆',
+          tag: '先物 RSI 22.93',
+          body: '中国の鉱工業生産（+4.8%・予想割れ）とドル高を受け、景気に最も敏感な銅が売られました。プロはこれを見て「FRBはこれ以上強く利上げできない」と判断します。'
+        },
+        cta: {
+          headline: '日足RSI「23.47（先物は22.93）」はDBS銀行(D05)と並ぶ売られすぎの極致',
+          tag: '短期リバウンド圏',
+          body: '日足200SMA（37.95）や週足50EMA（36.92）から大きく下に乖離しており、いつショートカバー（買い戻し）が入ってもおかしくない水準です。'
+        },
+        macro: {
+          headline: '中長期ではAIデータセンター・EV・送電網に不可欠な戦略物資',
+          tag: '電化・AIインフラ',
+          body: 'SpaceXやAmazonの巨大AIデータセンター建設には膨大な銅が必要です。投げ売りが止まった後の反発力は大きいアセットです。'
+        }
+      },
+      nextAction: 'マクロ温度計として最重要。RSI 23台まで売られたため、33〜34ドル圏で下げ止まり陽線が出れば、37ドル（週足50EMA）に向けた短期リバウンド狙いが可能です。',
+      metrics: [
+        { label: '日足 RSI (14)', value: '23.47', sub: '先物は22.9の極限値' },
+        { label: '銅先物 (HG1!)', value: '5.65 USD', sub: '1ヶ月 -14.18%' },
+        { label: '週足 50EMA', value: '36.92', sub: '反発時の戻りメド' },
+        { label: '日足 200SMA', value: '37.95', sub: '長期トレンド節目' }
+      ]
+    },
+    USDJPY: {
+      region: 'FX',
+      ticker: 'FX:USDJPY',
+      title: 'USD/JPY (ドル円)',
+      subtitle: '米ドル / 日本円 • 米10年債5.05% vs 日銀利上げ警戒（明日日本CPI）',
+      assetClass: '💱 為替 FX',
+      price: '159.53',
+      unit: 'JPY',
+      change: '+0.22 (+0.14%) • 200日線(158.80)上維持',
+      isUp: true,
+      shortTitle: '強い買いトレンドも160円介入・金曜CPI警戒',
+      shortPill: 'Strong Buy (160警戒)',
+      shortTone: 'warning',
+      longTitle: '157.8〜158.8円サポートでの押し目買い',
+      longPill: 'Buy on Dip',
+      longTone: 'success',
+      rangeStatus: '日足・週足ともにTradingView判定は「強い買い」！20・50・200日線すべての上で160円に迫る',
+      rangePos: '78%',
+      rangeLow: '157.82 (日足50SMA)',
+      rangeMid: '現在 159.53',
+      rangeHigh: '160.00 (心理的節目・介入警戒)',
+      lenses: {
+        flow: {
+          headline: '米2年債・10年債利回りの上昇と「19ヶ月ぶりのドル高(DXY 103.97)」が牽引',
+          tag: 'TV判定: 強い買い (15/0)',
+          body: 'ウォーシュFRBのタカ派姿勢（12月利上げ観測）により日米金利差が再び意識され、ドル買い・円売りのモメンタムが非常に強い状態です。'
+        },
+        cta: {
+          headline: '日足200SMA（158.80）・20SMA（158.48）・週足50EMA（157.30）が全て下値支持',
+          tag: 'パーフェクトオーダー',
+          body: '移動平均線は日足15本中15本すべてが「買い（Strong Buy）」。ただし160.00円の大台は政府・日銀の為替介入やオプション防戦売りが出やすい壁です。'
+        },
+        macro: {
+          headline: '明日 11/20（金）の「日本10月全国CPI」が最大のイベント！',
+          tag: '明日 日本CPI発表',
+          body: 'Mace Newsでも「10月CPIはインフレ加速予想」と報じられており、もしCPIが強く上振れれば日銀の利上げ観測から158円台前半への押し目を作る可能性があります。'
+        }
+      },
+      nextAction: '160円直前での高値掴みは避け、明日金曜の日本CPI発表後に157.80〜158.80円（50日・200日線サポート帯）へ押したところを拾うのがプロの戦い方です。',
+      metrics: [
+        { label: 'TV判定 (日/週)', value: '強い買い', sub: 'MA 15本すべてBuy' },
+        { label: '日足 200SMA', value: '158.80円', sub: '直下の強力サポート' },
+        { label: '週足 50EMA', value: '157.30円', sub: '中期の下値防衛線' },
+        { label: '日足 RSI (14)', value: '59.88', sub: '過熱感はまだ余地あり' }
+      ]
+    },
+    USDSGD: {
+      region: 'FX',
+      ticker: 'FX_IDC:USDSGD',
+      title: 'USD/SGD (ドルSGD)',
+      subtitle: '米ドル / シンガポールドル • シンガポールから米国株(USD)を買う為替レート',
+      assetClass: '💱 為替 FX',
+      price: '1.2904',
+      unit: 'SGD',
+      change: '+0.0010 (+0.08%) • 1M +0.87%',
+      isUp: true,
+      shortTitle: 'ドル高優勢（RSI 66.5 やや過熱）',
+      shortPill: 'Strong USD',
+      shortTone: 'warning',
+      longTitle: '1.280付近への押し目でSGD→USD両替が有利',
+      longPill: 'Convert on Dip',
+      longTone: 'success',
+      rangeStatus: '日足200SMA(1.2796)を上抜け1.2904へ上昇。週足200SMA(1.3173)が上値キャップ',
+      rangePos: '74%',
+      rangeLow: '1.2796 (日足200SMA)',
+      rangeMid: '現在 1.2904',
+      rangeHigh: '1.3173 (週足200SMA)',
+      lenses: {
+        flow: {
+          headline: '米ドル一強（DXY 103.97）により、堅調なシンガポールドルに対しても米ドルが上昇',
+          tag: 'TV判定: 強い買い',
+          body: 'アジア通貨全体が売られる中、MAS（シンガポール金融管理局）の管理下でSGDは健闘していますが、それでも米金利5%の影響で1.28→1.29台へ米ドル高が進んでいます。'
+        },
+        cta: {
+          headline: '日足RSIは66.50と買われすぎ（70）に接近、1.280〜1.283に20/50/200日線が密集',
+          tag: 'サポート 1.2800',
+          body: '1.2796〜1.2828に日足20・50・200SMAがすべて集まっており、ここが強力なサポート帯になっています。'
+        },
+        macro: {
+          headline: '★実践活用：手元のSGDを米ドル(USD)に替えてVWRA/CSPX/AMZNを買うタイミング',
+          tag: '両替タイミング判定',
+          body: '現在（1.2904）は短期的に少し米ドルが高め（RSI 66.5）です。もしSGD建てのDBS銀行（D05：66.55 SGD）を買うなら為替損なしで今すぐ買えます！USD株を買うための大口両替は1.280〜1.283への押し目がベストです。'
+        }
+      },
+      nextAction: '今すぐSGD資金を動かすなら、両替不要で極度の売られすぎにある「DBS銀行（D05）」が最適。米ドルへの両替は1.29台で半分、1.280前後への押し目で残り半分が賢明です。',
+      metrics: [
+        { label: '現在レート', value: '1.2904', sub: '1 USD = 1.2904 SGD' },
+        { label: '日足 RSI (14)', value: '66.50', sub: '70(ドル買われすぎ)接近' },
+        { label: '日足 200SMA', value: '1.2796', sub: '絶好のUSD両替目安' },
+        { label: '週足 200SMA', value: '1.3173', sub: '長期のドル上値抵抗' }
+      ]
+    },
+    SGDJPY: {
+      region: 'FX',
+      ticker: 'FX_IDC:SGDJPY',
+      title: 'SGD/JPY (SGD円)',
+      subtitle: 'シンガポールドル / 日本円 • SGDから日本株(8058/1364)を買う為替レート',
+      assetClass: '💱 為替 FX',
+      price: '123.63',
+      unit: 'JPY',
+      change: '+0.08 (+0.07%) • 1Y +3.57%',
+      isUp: true,
+      shortTitle: '200日線(124.04)直下の安定レンジ',
+      shortPill: 'Stable Range',
+      shortTone: 'success',
+      longTitle: 'SGDからの日本株(三菱商事等)投資に好環境',
+      longPill: 'Favorable FX',
+      longTone: 'success',
+      rangeStatus: '日足20SMA(123.50)と日足200SMA(124.04)の間の非常に落ち着いた高値安定レンジ',
+      rangePos: '62%',
+      rangeLow: '122.56 (週足50EMA)',
+      rangeMid: '現在 123.63',
+      rangeHigh: '124.04 (日足200SMA)',
+      lenses: {
+        flow: {
+          headline: '購買力平価から見てSGDは対円で歴史的な強さ（1 SGD = 123.6円）を維持',
+          tag: 'TV判定: 買い',
+          body: 'シンガポールドルの通貨としての強さにより、123円台後半の高い購買力をキープしています。'
+        },
+        cta: {
+          headline: 'RSI 51.5（完全な中立）、週足50EMA（122.56円）と週足50SMA（123.62円）が下支え',
+          tag: 'ボラティリティ低',
+          body: 'ドル円（USD/JPY）よりも値動きがマイルドで、日足200SMA（124.04円）を抜けるとさらなるSGD高・円安トレンドに入ります。'
+        },
+        macro: {
+          headline: '★実践活用：強いSGDを活かして日本の優良株（三菱商事 8058 / JPX400 1364）を買うメリット',
+          tag: 'クロスボーダー戦略',
+          body: '明日11/20(金)の日本CPIで一時的に円高（122円台半ば）に振れる場面があれば、円転・日本株買い増しの絶好のチャンスになります。'
+        }
+      },
+      nextAction: '1 SGD = 123.6円とSGDの購買力が非常に強いため、日本株No.1の三菱商事（8058）や1364を買う環境として引き続き有利です。',
+      metrics: [
+        { label: '現在レート', value: '123.63円', sub: '1 SGD = 123.63 JPY' },
+        { label: '日足 RSI (14)', value: '51.53', sub: '過熱感なしの安定推移' },
+        { label: '日足 200SMA', value: '124.04円', sub: '上抜けでSGD高加速' },
+        { label: '週足 50EMA', value: '122.56円', sub: '押し目サポート水準' }
+      ]
+    },
+    DXY: {
+      region: 'FX',
+      ticker: 'TVC:DXY',
+      title: 'DXY (米ドル指数)',
+      subtitle: 'US Dollar Index • 19ヶ月ぶり高値 • 全アセットを動かす最重要マクロ温度計',
+      assetClass: '💱 マクロ基軸通貨',
+      price: '103.97',
+      unit: 'INDEX',
+      change: '+0.15 (+0.15%) • 6M +4.80% • 日足RSI 71.3',
+      isUp: true,
+      shortTitle: '買われすぎ圏（RSI 71.3）ピーク接近',
+      shortPill: 'Overbought (RSI 71)',
+      shortTone: 'warning',
+      longTitle: '104.0前後でドル高一服なら株・金が一斉反発へ！',
+      longPill: 'Macro Pivot',
+      longTone: 'warning',
+      rangeStatus: '日足RSI 71.3・週足RSI 70.2と「ドル買われすぎ（70超え）」に到達！104の節目で天井を打つか注目',
+      rangePos: '88%',
+      rangeLow: '101.79 (日足50SMA)',
+      rangeMid: '現在 103.97',
+      rangeHigh: '104.50 (19ヶ月高値抵抗帯)',
+      lenses: {
+        flow: {
+          headline: '★プロが毎日一番最初に見るチャート：すべての株安・金安の犯人はこの「DXYの上昇」',
+          tag: '19ヶ月ぶり高値',
+          body: '米10年債利回り5.05%とAnthropic IPOのドル資金需要でDXYが103.97まで急騰しました。DXYが上がると、逆相関で米国株・新興国株(VWRA)・ゴールドが機械的に売られます。'
+        },
+        cta: {
+          headline: '朗報：日足RSI（71.30）・週足RSI（70.23）ともに「70（買われすぎ限界）」に到達！',
+          tag: 'RSI 71.3 ピーク圏',
+          body: '日足だけでなく週足のRSIまで70を超えたということは、ドル買いがすでに限界近くまで織り込まれたことを意味します。'
+        },
+        macro: {
+          headline: 'DXYが104から102台へ反落し始めた瞬間が、株（IVV/CSPX/VWRA）と金（GOLD）の全面買い合図！',
+          tag: '11/25 米コアPCE',
+          body: '来週11/25（水）の米コアPCE通過で「材料出尽くし」となりDXYが反落すれば、今まで抑えつけられていた株式ETFやゴールドが一気に吹き上がります。'
+        }
+      },
+      nextAction: 'このDXYのRSIが71から60台へ下がり始める（＝ドル高が一服する）瞬間が、VWRA・CSPX・IVV・GOLDの第2弾買い増しのベストタイミングになります！',
+      metrics: [
+        { label: '日足 RSI (14)', value: '71.30', sub: '買われすぎ(70超)到達！' },
+        { label: '週足 RSI (14)', value: '70.23', sub: '中期もドル高ピーク圏' },
+        { label: '日足 20SMA', value: '102.47', sub: '反落時の第1サポート' },
+        { label: '日足 200SMA', value: '100.04', sub: '長期の分岐ライン' }
       ]
     }
   }
@@ -949,6 +1506,7 @@ window.PROFLOW_DATA = {
 </script>
   <script>
     const DATA = window.PROFLOW_DATA.symbols;
+    const MACRO = window.PROFLOW_DATA.macroOverview;
     let currentRegion = 'ALL';
     let currentId = '8058';
     let currentLens = 'flow';
@@ -956,22 +1514,47 @@ window.PROFLOW_DATA = {
 
     // Historical performance anchors from TradingView (1D, 5D, 1M, 3M, 6M, 1Y, SMA200)
     const CHART_ANCHORS = {
-      VWRA: { cur: 182.18, d5: -3.55, m1: -5.23, m3: -5.72, m6: -1.84, y1: 9.06, sma200: 185.05 },
-      CSPX: { cur: 790.97, d5: -3.46, m1: -5.47, m3: -4.57, m6: -0.88, y1: 3.22, sma200: 791.46 },
-      IVV:  { cur: 735.70, d5: -2.85, m1: -5.27, m3: -4.95, m6: -0.86, y1: 9.32, sma200: 735.59 },
-      VHVE: { cur: 145.10, d5: -4.06, m1: -5.00, m3: -5.42, m6: -1.40, y1: 10.09, sma200: 146.52 },
-      FGM:  { cur: 57.84,  d5: -2.85, m1: -1.07, m3: -8.19, m6: -10.06, y1: -1.48, sma200: 62.93 },
-      AMZN: { cur: 257.89, d5: -3.74, m1: 1.10,  m3: -1.13, m6: -2.13, y1: 10.56, sma200: 244.76 },
-      SPCX: { cur: 141.70, d5: 2.80,  m1: -4.13, m3: -2.25, m6: -5.53, y1: -5.53, sma200: 144.94 },
-      TSLA: { cur: 380.11, d5: -1.62, m1: 2.97,  m3: 12.16, m6: -9.96, y1: -4.67, sma200: 382.27 },
-      GOOG: { cur: 277.60, d5: -4.46, m1: -19.37,m3: -18.31,m6: -27.33,y1: -3.07, sma200: 335.79 },
-      D05:  { cur: 66.55,  d5: -5.48, m1: -10.12,m3: -11.87,m6: 7.67,  y1: 23.91, sma200: 66.72 },
-      O39:  { cur: 27.36,  d5: -4.34, m1: -5.69, m3: -10.82,m6: 16.92, y1: 49.05, sma200: 26.01 },
-      '8058': { cur: 5089, d5: -4.58, m1: 7.25,  m3: 9.30,  m6: -5.99, y1: 38.50, sma200: 4915 },
-      '1329': { cur: 6160, d5: -4.02, m1: -7.77, m3: -9.93, m6: -5.12, y1: 18.97, sma200: 6469 },
-      '1475': { cur: 396.3,d5: -3.72, m1: -4.97, m3: -4.44, m6: -1.42, y1: 15.32, sma200: 403.2 },
-      '1364': { cur: 3592, d5: -3.21, m1: -4.57, m3: -4.11, m6: -1.02, y1: 15.95, sma200: 3637 }
+      VWRA:   { cur: 182.18, d5: -3.55, m1: -5.23, m3: -5.72, m6: -1.84, y1: 9.06,  sma200: 185.05 },
+      CSPX:   { cur: 790.97, d5: -3.46, m1: -5.47, m3: -4.57, m6: -0.88, y1: 3.22,  sma200: 791.46 },
+      IVV:    { cur: 735.70, d5: -2.85, m1: -5.27, m3: -4.95, m6: -0.86, y1: 9.32,  sma200: 735.59 },
+      VHVE:   { cur: 145.10, d5: -4.06, m1: -5.00, m3: -5.42, m6: -1.40, y1: 10.09, sma200: 146.52 },
+      SOXX:   { cur: 141.85, d5: -7.48, m1: -16.73,m3: -12.0, m6: -19.99,y1: 52.23, sma200: 160.77 },
+      FGM:    { cur: 57.84,  d5: -2.85, m1: -1.07, m3: -8.19, m6: -10.06,y1: -1.48, sma200: 62.93 },
+      AMZN:   { cur: 257.89, d5: -3.74, m1: 1.10,  m3: -1.13, m6: -2.13, y1: 10.56, sma200: 244.76 },
+      SPCX:   { cur: 141.70, d5: 2.80,  m1: -4.13, m3: -2.25, m6: -5.53, y1: -5.53, sma200: 144.94 },
+      TSLA:   { cur: 380.11, d5: -1.62, m1: 2.97,  m3: 12.16, m6: -9.96, y1: -4.67, sma200: 382.27 },
+      GOOG:   { cur: 277.60, d5: -4.46, m1: -19.37,m3: -18.31,m6: -27.33,y1: -3.07, sma200: 335.79 },
+      D05:    { cur: 66.55,  d5: -5.48, m1: -10.12,m3: -11.87,m6: 7.67,  y1: 23.91, sma200: 66.72 },
+      O39:    { cur: 27.36,  d5: -4.34, m1: -5.69, m3: -10.82,m6: 16.92, y1: 49.05, sma200: 26.01 },
+      '8058': { cur: 5089,   d5: -4.58, m1: 7.25,  m3: 9.30,  m6: -5.99, y1: 38.50, sma200: 4915 },
+      '1329': { cur: 6160,   d5: -4.02, m1: -7.77, m3: -9.93, m6: -5.12, y1: 18.97, sma200: 6469 },
+      '1475': { cur: 396.3,  d5: -3.72, m1: -4.97, m3: -4.44, m6: -1.42, y1: 15.32, sma200: 403.2 },
+      '1364': { cur: 3592,   d5: -3.21, m1: -4.57, m3: -4.11, m6: -1.02, y1: 15.95, sma200: 3637 },
+      TLT:    { cur: 80.22,  d5: 1.16,  m1: 0.40,  m3: -2.80, m6: -5.18, y1: -10.22,sma200: 84.19 },
+      IEF:    { cur: 90.67,  d5: 0.71,  m1: 0.39,  m3: -1.80, m6: -3.50, y1: -6.37, sma200: 93.55 },
+      GOLD:   { cur: 3711.38,d5: -4.25, m1: -10.39,m3: -14.0, m6: -18.29,y1: -8.74, sma200: 4428.23 },
+      USOIL:  { cur: 81.95,  d5: -7.83, m1: -16.69,m3: -12.0, m6: -16.49,y1: 35.25, sma200: 87.92 },
+      CPER:   { cur: 34.10,  d5: -7.79, m1: -13.54,m3: -10.5, m6: -11.77,y1: 10.21, sma200: 37.95 },
+      USDJPY: { cur: 159.53, d5: -0.18, m1: 0.67,  m3: 0.50,  m6: 0.38,  y1: 2.63,  sma200: 158.80 },
+      USDSGD: { cur: 1.2904, d5: 0.33,  m1: 0.87,  m3: 0.90,  m6: 0.95,  y1: -0.86, sma200: 1.2796 },
+      SGDJPY: { cur: 123.63, d5: -0.38, m1: -0.08, m3: -0.25, m6: -0.47, y1: 3.57,  sma200: 124.04 },
+      DXY:    { cur: 103.97, d5: 0.71,  m1: 1.94,  m3: 3.20,  m6: 4.80,  y1: 4.40,  sma200: 100.04 }
     };
+
+    function renderMacroOverview() {
+      if (!MACRO) return;
+      document.getElementById('macro-title').textContent = MACRO.regimeTitle;
+      document.getElementById('macro-summary').textContent = MACRO.regimeSummary;
+      document.getElementById('macro-pillars').innerHTML = MACRO.pillars.map(p => `
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5 space-y-2">
+          <div class="flex items-center justify-between gap-2">
+            <span class="font-bold text-sm">${p.title}</span>
+            <span class="px-2 py-0.5 rounded-full text-xs font-mono font-semibold ${toneStyles(p.tone)}">${p.status}</span>
+          </div>
+          <p class="text-xs text-[var(--muted-foreground)] leading-relaxed">${p.detail}</p>
+        </div>
+      `).join('');
+    }
 
     function buildSeries(id, range) {
       const a = CHART_ANCHORS[id] || CHART_ANCHORS.VWRA;
@@ -984,11 +1567,11 @@ window.PROFLOW_DATA = {
 
       let waypoints = [];
       if (range === '1M') {
-        waypoints = [p1m, (p1m * 0.6 + p5d * 0.4) * 1.012, p5d * 1.015, p5d, cur];
+        waypoints = [p1m, (p1m * 0.6 + p5d * 0.4) * 1.008, p5d * 1.01, p5d, cur];
       } else if (range === '6M') {
-        waypoints = [p6m, (p6m + p3m) / 2 * 1.025, p3m * 1.04, p1m * 1.015, p5d, cur];
+        waypoints = [p6m, (p6m + p3m) / 2 * 1.015, p3m * 1.025, p1m * 1.01, p5d, cur];
       } else {
-        waypoints = [p1y, (p1y + p6m) / 2 * 0.98, p6m * 1.03, p3m * 1.05, p1m, p5d, cur];
+        waypoints = [p1y, (p1y + p6m) / 2 * 0.99, p6m * 1.02, p3m * 1.03, p1m, p5d, cur];
       }
 
       const steps = 48;
@@ -1002,7 +1585,8 @@ window.PROFLOW_DATA = {
         let val = waypoints[idx] * (1 - smooth) + waypoints[idx + 1] * smooth;
         if (i > 0 && i < steps) {
           seed = (seed * 1103515245 + 12345) & 0x7fffffff;
-          const noise = ((seed % 1000) / 1000 - 0.5) * 0.012 * cur;
+          const noiseScale = (DATA[id] && DATA[id].region === 'FX') ? 0.0025 : 0.011;
+          const noise = ((seed % 1000) / 1000 - 0.5) * noiseScale * cur;
           val += noise;
         }
         pts.push(val);
@@ -1017,6 +1601,7 @@ window.PROFLOW_DATA = {
       const canvas = document.getElementById('apple-chart');
       if (!canvas) return;
       const rect = canvas.getBoundingClientRect();
+      if (rect.width === 0) return;
       const dpr = window.devicePixelRatio || 1;
       canvas.width = rect.width * dpr;
       canvas.height = rect.height * dpr;
@@ -1032,8 +1617,8 @@ window.PROFLOW_DATA = {
       const sma = activeSeries.sma200;
 
       const allVals = pts.concat([sma]);
-      const minV = Math.min(...allVals) * 0.992;
-      const maxV = Math.max(...allVals) * 1.008;
+      const minV = Math.min(...allVals) * 0.995;
+      const maxV = Math.max(...allVals) * 1.005;
       const span = Math.max(maxV - minV, 0.0001);
 
       const padX = 8;
@@ -1044,7 +1629,6 @@ window.PROFLOW_DATA = {
       const toX = (i) => padX + (i / (pts.length - 1)) * plotW;
       const toY = (v) => padY + (1 - (v - minV) / span) * plotH;
 
-      // Subtle horizontal grid lines
       ctx.strokeStyle = 'rgba(148, 163, 184, 0.12)';
       ctx.lineWidth = 1;
       [0.2, 0.5, 0.8].forEach(r => {
@@ -1054,7 +1638,6 @@ window.PROFLOW_DATA = {
         ctx.stroke();
       });
 
-      // 200-day SMA dashed reference line
       if (sma >= minV && sma <= maxV) {
         const ySma = toY(sma);
         ctx.save();
@@ -1071,13 +1654,11 @@ window.PROFLOW_DATA = {
         ctx.restore();
       }
 
-      // Main price curve color (Apple Stocks green if current >= start or Strong Buy, else coral/amber)
       const isPositive = pts[pts.length - 1] >= pts[0];
       const strokeColor = isPositive ? '#10b981' : '#f43f5e';
       const gradTop = isPositive ? 'rgba(16, 185, 129, 0.28)' : 'rgba(244, 63, 94, 0.28)';
       const gradBot = isPositive ? 'rgba(16, 185, 129, 0.0)' : 'rgba(244, 63, 94, 0.0)';
 
-      // Area fill
       ctx.beginPath();
       pts.forEach((v, i) => {
         const x = toX(i);
@@ -1094,7 +1675,6 @@ window.PROFLOW_DATA = {
       ctx.fillStyle = grad;
       ctx.fill();
 
-      // Smooth price line
       ctx.beginPath();
       pts.forEach((v, i) => {
         const x = toX(i);
@@ -1107,7 +1687,6 @@ window.PROFLOW_DATA = {
       ctx.lineJoin = 'round';
       ctx.stroke();
 
-      // End glowing dot or hover scrubber
       const idx = (hoverIndex !== null && hoverIndex >= 0 && hoverIndex < pts.length) ? hoverIndex : (pts.length - 1);
       const cx = toX(idx);
       const cy = toY(pts[idx]);
@@ -1133,8 +1712,10 @@ window.PROFLOW_DATA = {
     }
 
     function formatNum(val) {
+      if (currentId === 'USDSGD') return val.toFixed(4);
       const unit = DATA[currentId].unit;
       if (unit === 'JPY' && val >= 1000) return Math.round(val).toLocaleString();
+      if (unit === 'JPY' && val >= 100) return val.toFixed(2);
       if (unit === 'JPY') return val.toFixed(1);
       return val.toFixed(2);
     }
@@ -1193,8 +1774,9 @@ window.PROFLOW_DATA = {
 
     function setRegion(reg) {
       currentRegion = reg;
-      ['ALL', 'US', 'ETF', 'SG', 'JP'].forEach(r => {
+      ['ALL', 'US', 'ETF', 'SG', 'JP', 'BOND', 'COMMODITY', 'FX'].forEach(r => {
         const btn = document.getElementById('reg-' + r);
+        if (!btn) return;
         if (r === reg) {
           btn.className = 'px-2.5 py-1 rounded-lg font-semibold bg-[var(--secondary)] text-[var(--foreground)] transition shrink-0';
         } else {
@@ -1324,21 +1906,25 @@ window.PROFLOW_DATA = {
     }
 
     function setMainView(view) {
+      document.getElementById('view-macro').classList.toggle('hidden', view !== 'macro');
       document.getElementById('view-signal').classList.toggle('hidden', view !== 'signal');
       document.getElementById('nav-area').classList.toggle('hidden', view !== 'signal');
       document.getElementById('view-picks').classList.toggle('hidden', view !== 'picks');
       document.getElementById('view-matrix').classList.toggle('hidden', view !== 'matrix');
 
-      ['signal', 'picks', 'matrix'].forEach(v => {
+      ['macro', 'signal', 'picks', 'matrix'].forEach(v => {
         const btn = document.getElementById('nav-' + v);
+        if (!btn) return;
         btn.className = (v === view)
-          ? 'px-3 py-1 rounded-full font-medium bg-[var(--foreground)] text-[var(--background)] transition'
-          : 'px-3 py-1 rounded-full font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition';
+          ? 'px-3 py-1 rounded-full font-medium bg-[var(--foreground)] text-[var(--background)] transition shrink-0'
+          : 'px-3 py-1 rounded-full font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition shrink-0';
       });
+      if (view === 'macro') renderMacroOverview();
       if (view === 'matrix') renderMatrix();
       if (view === 'signal') setTimeout(drawAppleChart, 20);
     }
 
+    renderMacroOverview();
     setupChartTouch();
     setRegion('ALL');
     selectSymbol('8058');
