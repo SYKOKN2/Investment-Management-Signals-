@@ -54,7 +54,7 @@
         <button onclick="setMainView('macro')" id="nav-macro" class="px-3 py-1 rounded-full font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition shrink-0">🌐 市場の大きな流れ</button>
         <button onclick="setMainView('signal')" id="nav-signal" class="px-3 py-1 rounded-full font-medium bg-[var(--foreground)] text-[var(--background)] transition shrink-0">📈 チャート＆分析</button>
         <button onclick="setMainView('picks')" id="nav-picks" class="px-3 py-1 rounded-full font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition shrink-0">🏆 今買うべき5選</button>
-        <button onclick="setMainView('matrix')" id="nav-matrix" class="px-3 py-1 rounded-full font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition shrink-0">全25一覧</button>
+        <button onclick="setMainView('matrix')" id="nav-matrix" class="px-3 py-1 rounded-full font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition shrink-0">全31一覧</button>
       </div>
     </header>
 
@@ -124,9 +124,9 @@
     <!-- Region / Asset Class Filter + Ticker Bar -->
     <div id="nav-area" class="space-y-2.5">
       <div class="flex items-center gap-1.5 text-xs overflow-x-auto no-scrollbar">
-        <button onclick="setRegion('ALL')" id="reg-ALL" class="px-2.5 py-1 rounded-lg font-medium transition">すべて (25)</button>
+        <button onclick="setRegion('ALL')" id="reg-ALL" class="px-2.5 py-1 rounded-lg font-medium transition">すべて (31)</button>
         <button onclick="setRegion('US')" id="reg-US" class="px-2.5 py-1 rounded-lg font-medium transition">🇺🇸 米個別株・宇宙 (4)</button>
-        <button onclick="setRegion('ETF')" id="reg-ETF" class="px-2.5 py-1 rounded-lg font-medium transition">🌍 株・半導体ETF (6)</button>
+        <button onclick="setRegion('ETF')" id="reg-ETF" class="px-2.5 py-1 rounded-lg font-medium transition">🌍 国別・セクター・指数ETF (12)</button>
         <button onclick="setRegion('SG')" id="reg-SG" class="px-2.5 py-1 rounded-lg font-medium transition">🇸🇬 シンガポール株 (2)</button>
         <button onclick="setRegion('JP')" id="reg-JP" class="px-2.5 py-1 rounded-lg font-medium transition">🇯🇵 日本株・ETF (4)</button>
         <button onclick="setRegion('BOND')" id="reg-BOND" class="px-2.5 py-1 rounded-lg font-medium transition">🏦 債券・金利 (2)</button>
@@ -253,7 +253,7 @@
       <section class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5 sm:p-6 space-y-4">
         <div>
           <h2 class="text-base font-bold">🏆 中長期目線で「今」買うべき銘柄ランキング（クロスアセット版）</h2>
-          <p class="text-xs text-[var(--muted-foreground)] mt-0.5">株・債券・コモディティ・為替の全25銘柄からプロの資金流入と岩盤サポートで厳選</p>
+          <p class="text-xs text-[var(--muted-foreground)] mt-0.5">株・債券・コモディティ・為替の全31銘柄からプロの資金流入と岩盤サポートで厳選</p>
         </div>
 
         <div class="space-y-3 text-xs">
@@ -305,7 +305,7 @@
       <section class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5 sm:p-6 space-y-4">
         <div class="flex items-center justify-between">
           <div>
-            <h2 class="text-base font-bold">全25銘柄 クロスアセット比較マトリクス</h2>
+            <h2 class="text-base font-bold">全31銘柄 クロスアセット比較マトリクス</h2>
             <p class="text-xs text-[var(--muted-foreground)] mt-0.5">株・ETF・債券・コモディティ・為替（タップで詳細チャートへ）</p>
           </div>
         </div>
@@ -317,11 +317,11 @@
 
   <script>
 window.PROFLOW_DATA = {
-  updatedAt: "2026-11-19 11:43 GMT+8",
+  updatedAt: "2026-11-20 14:10 GMT+8",
   vix: "24.55",
   macroOverview: {
-    regimeTitle: "米金利5.05%・ドル一強（19ヶ月高値）× Anthropic IPO資金吸収・アジア半導体調整",
-    regimeSummary: "ウォーシュFRBのタカ派姿勢で米10年債利回りが5.052%へ上昇し、米ドル指数(DXY 103.97)が19ヶ月ぶり高値。さらにAnthropicのIPO価格決定が迫り、半導体(SOXX 1ヶ月-16.7%・台湾株今日-4.8%)やゴールド(3,711ドル・RSI 29.3)から「米ドル現金」および「高キャッシュ還元株(三菱商事・Amazon・SpaceX)」への大規模な資金移動が進行中です。",
+    regimeTitle: "ハイパースケーラーからの「恒久的再分配」× インド株(FLIN)・高金利債・実物株への資金シフト",
+    regimeSummary: "現在マーケットで起きているのは単なるAnthropic IPO前の換金売りにとどまらず、「ハイパースケーラー（Google等）は営業利益のAI比率に応じた『部分的AI企業』と見なし、ポートフォリオ比率を恒久的に引き下げる」という機関投資家の構造改革です。抜けた巨額資金は①100%純粋AI・宇宙(Anthropic/SpaceX)、②半導体不況と無縁で銀行株が最高値を更新中のインド株(FLIN 1ヶ月+9.2%・ルピー高)、③利回り5.05%の米国債(TLT)と高還元バリュー株(三菱商事・DBS銀行)へ再分配されています。",
     pillars: [
       {
         title: "🏦 債券市場 (Bonds)",
@@ -350,6 +350,282 @@ window.PROFLOW_DATA = {
     ]
   },
   symbols: {
+    FLIN: {
+      region: 'ETF',
+      ticker: 'AMEX:FLIN',
+      title: 'FLIN (インド株ETF)',
+      subtitle: 'Franklin FTSE India ETF • 経費率 0.19% (INDAの1/3) • 1M +9.17%',
+      assetClass: '🇮🇳 インド株ETF',
+      price: '37.16',
+      unit: 'USD',
+      change: '+0.40 (+1.09%) • 1M +9.17% • 出来高 1.83倍',
+      isUp: true,
+      shortTitle: '強い買いも短期過熱（RSI 73.3・押し目待ち）',
+      shortPill: 'Strong Buy (RSI 73)',
+      shortTone: 'warning',
+      longTitle: 'ハイテク流出資金の受け皿！35.5〜36.5で買い',
+      longPill: 'Strong Buy',
+      longTone: 'success',
+      rangeStatus: '日足・週足ともにMA 14本すべて「買い」！アジア株暴落の中で9ヶ月ぶり高値へ独歩高',
+      rangePos: '84%',
+      rangeLow: '35.15 (日足200SMA)',
+      rangeMid: '現在 37.16',
+      rangeHigh: '37.65 (週足ピボットP)',
+      lenses: {
+        flow: {
+          headline: 'ハイパースケーラー・半導体（台湾/韓国）から抜けた資金がインドへ殺到！',
+          tag: '出来高 1.83x / 1年流入+$399M',
+          body: '高コストなINDA(0.61%・資金流出-$1.91B)から低コストなFLIN(0.19%・純流入+$399M)へ機関投資家が乗り換え中。米ドル一強の中でインドルピー(USDINR 92.97)が逆行高になるほど海外マネーが流入しています。'
+        },
+        cta: {
+          headline: 'TradingView判定：日足・週足ともに「強い買い（Strong Buy）」',
+          tag: '日足 RSI 73.28 / 週足 60.5',
+          body: '移動平均線は日足・週足ともに14本全てがBuy。ただし日足RSIが73.28と短期過熱圏にあるため、日足20EMA（35.89）〜週足50EMA（35.69）への軽い押し目を拾うのがベストです。'
+        },
+        macro: {
+          headline: 'インド銀行株指数が史上最高値更新 ＆ 来週11/23(月) インドQ3 GDP発表',
+          tag: '11/23 インドGDP (+7.6%予想)',
+          body: '上位組入のHDFC銀行(5.6%)・ICICI銀行(5.2%)など内需・銀行が牽引し、半導体不況と無縁。来週月曜のインドGDP（予想+7.6%）前後の動きに注目です。'
+        }
+      },
+      nextAction: '「恒久的再分配」の新たな成長コア枠として最適。RSI 73のため高値飛びつきは避け、①36.0〜36.8ドル（20EMA接近）で第1弾、②35.15〜35.70ドル（200SMA＆週足50EMA）で本命買い増し。',
+      metrics: [
+        { label: 'TV判定 (日/週)', value: '強い買い', sub: 'MA 14本すべてBuy' },
+        { label: '1ヶ月騰落率', value: '+9.17%', sub: 'アジア株下落に逆行高' },
+        { label: '日足 RSI (14)', value: '73.28', sub: '短期過熱・押し目待ち' },
+        { label: '経費率 / 出来高', value: '0.19% / 1.83x', sub: '機関投資家が選好' }
+      ]
+    },
+    UAE: {
+      region: 'ETF',
+      ticker: 'NASDAQ:UAE',
+      title: 'UAE (アラブ首長国連邦)',
+      subtitle: 'iShares MSCI UAE ETF • 1M +6.26% • 6M +9.37% • ドルペッグでドル高耐性',
+      assetClass: '🇦🇪 中東・UAE株ETF',
+      price: '20.89',
+      unit: 'USD',
+      change: '-1.46% • 1M +6.26% • 出来高 1.57倍',
+      isUp: true,
+      shortTitle: '買い（20日線20.06サポート・過熱感なし）',
+      shortPill: 'Buy (RSI 61.5)',
+      shortTone: 'success',
+      longTitle: 'インドと並ぶ世界2大資金流入国！',
+      longPill: 'Strong Buy',
+      longTone: 'success',
+      rangeStatus: '世界21ヶ国スキャンでインド(FLIN)と並び日足・週足ともに「買い」＆全MA上の唯一の国',
+      rangePos: '74%',
+      rangeLow: '19.56 (日足200SMA)',
+      rangeMid: '現在 20.89',
+      rangeHigh: '21.50 (直近高値節目)',
+      lenses: {
+        flow: {
+          headline: '世界21ヶ国ETFの中で、インド(FLIN)以外に機関投資家が買っている唯一の国！',
+          tag: '出来高 1.57x / 6M +9.37%',
+          body: 'ブラジル(-30%)や豪州(-6.2%)など世界中の国別ETFが売られる中、UAEは1ヶ月+6.26%・6ヶ月+9.37%と独歩高。出来高も平均の1.57倍に膨らみ大口資金が流入中です。'
+        },
+        cta: {
+          headline: '日足・週足ともに「買い（Buy）」判定！しかもRSI 61.5でインド(73.3)より買いやすい',
+          tag: '20/50/200MA パーフェクトオーダー',
+          body: '20SMA（20.06）・50SMA（19.90）・200SMA（19.56）すべての上に位置する美しい上昇トレンド。RSIも61.53と過熱しておらず、今からでもエントリー可能な水準です。'
+        },
+        macro: {
+          headline: '通貨ディルハムが「米ドルペッグ（固定）」のため、米ドル一強(DXY 103.97)の悪影響ゼロ！',
+          tag: 'アブダビAI資本 & ドバイ不動産',
+          body: 'サウジ(KSA)と違い原油依存から脱却し、ドバイの不動産（Emaar）や高金利で潤うアブダビ・ドバイの巨大銀行、ソブリンAI投資（MGX）が成長を牽引しています。'
+        }
+      },
+      nextAction: 'インド(FLIN)がRSI 73で押し目待ちなのに対し、UAEはRSI 61.5で今すぐ第1弾を買える好位置です。20.00〜20.89ドル（日足20SMA〜現在値）での分割買いが有効。',
+      metrics: [
+        { label: 'TV判定 (日/週)', value: '買い / 買い', sub: '世界21ヶ国でTop 2' },
+        { label: '日足 RSI (14)', value: '61.53', sub: '過熱感なく健全な上昇' },
+        { label: '日足 20/50SMA', value: '20.06 / 19.90', sub: '直下の強力サポート' },
+        { label: '出来高倍率', value: '1.57x', sub: '機関投資家の資金流入' }
+      ]
+    },
+    CIBR: {
+      region: 'ETF',
+      ticker: 'NASDAQ:CIBR',
+      title: 'CIBR (サイバー防衛ETF)',
+      subtitle: 'First Trust NASDAQ Cybersecurity ETF • YTD +33.89% • 1W +1.19%',
+      assetClass: '🛡️ 米サイバーセキュリティETF',
+      price: '96.36',
+      unit: 'USD',
+      change: '+0.31% • 1W +1.19% (全米セクター唯一プラス) • 出来高 1.78倍',
+      isUp: true,
+      shortTitle: '全米18セクターで今週唯一の逆行高！',
+      shortPill: 'Top Sector (1.78x Vol)',
+      shortTone: 'success',
+      longTitle: 'ハイパースケーラー流出資金のテック最有力受け皿',
+      longPill: 'Buy',
+      longTone: 'success',
+      rangeStatus: '半導体(SOXX)や一般ソフト(IGV)が崩れる中、出来高1.78倍を伴い今週唯一のプラス推移',
+      rangePos: '66%',
+      rangeLow: '84.92 (日足200SMA)',
+      rangeMid: '現在 96.36',
+      rangeHigh: '98.30 (日足20SMA)',
+      lenses: {
+        flow: {
+          headline: 'ハイパースケーラーや半導体を売った「テック枠の資金」がCIBRに大移動！',
+          tag: '出来高 1.78x / YTD +33.89%',
+          body: '一般ソフトウェアETF（IGV：1ヶ月-9.11%）やNASDAQ（QQQ：-9.82%）が売られる中、CIBRは出来高が平均の1.78倍に急増し、今週全米セクターで唯一プラス（+1.19%）を記録しています。'
+        },
+        cta: {
+          headline: '週足判定「買い（Buy）」、日足RSIは46.62と絶好の押し目水準',
+          tag: '200SMA(84.92)の遥か上',
+          body: '年初来+33.89%の強い上昇トレンドの中で軽く調整し、RSIが46.6まで冷えたところから反発を開始。98.30ドル（日足20SMA）を抜ければ再び高値更新コースです。'
+        },
+        macro: {
+          headline: 'AIエージェント（Anthropic等）が普及するほど、企業のサイバー防衛費は聖域化',
+          tag: 'AI時代の必須インフラ',
+          body: 'AIによるサイバー攻撃の高度化に伴い、企業も政府もセキュリティ予算だけは絶対に削れません。ハイパースケーラーのような過剰設備投資（減価償却）リスクがないのも強みです。'
+        }
+      },
+      nextAction: '米国テック枠で「半導体・ハイパースケーラー以外」を持つならNo.1の選択肢です。95〜96.5ドルの現在値で第1弾、98.30ドル（20SMA）突破で追加買い。',
+      metrics: [
+        { label: '今週騰落率 (1W)', value: '+1.19%', sub: '米18セクターで唯一プラス' },
+        { label: '年初来 / 6ヶ月', value: '+33.9% / +16.7%', sub: '圧倒的アウトパフォーム' },
+        { label: '日足 RSI (14)', value: '46.62', sub: '過熱感ゼロの好位置' },
+        { label: '出来高倍率', value: '1.78x', sub: '機関投資家の大口流入' }
+      ]
+    },
+    XLV: {
+      region: 'ETF',
+      ticker: 'AMEX:XLV',
+      title: 'XLV (米ヘルスケアETF)',
+      subtitle: 'Health Care Select Sector SPDR • 6M +19.03% • 50日線ピタリ到達',
+      assetClass: '💊 米ヘルスケアセクター',
+      price: '177.46',
+      unit: 'USD',
+      change: '-2.05% • 6M +19.03% • YTD +14.59% • 出来高 1.68倍',
+      isUp: false,
+      shortTitle: '日足50SMA(176.26)＆RSI 41の絶好の押し目！',
+      shortPill: 'Buy Dip (50SMA)',
+      shortTone: 'success',
+      longTitle: 'ハイテクからの恒久的再分配の本命セクター',
+      longPill: 'Strong Buy',
+      longTone: 'success',
+      rangeStatus: '過去6ヶ月で+19.03%上昇した最強ディフェンシブ成長株が、ちょうど日足50SMA(176.26)にタッチ',
+      rangePos: '52%',
+      rangeLow: '160.76 (日足200SMA)',
+      rangeMid: '現在 177.46 (50SMA 176.3)',
+      rangeHigh: '184.45 (日足20SMA)',
+      lenses: {
+        flow: {
+          headline: '過去6ヶ月でS&P500(-4.1%)やNASDAQ(-10.2%)を圧倒する「+19.03%」の資金流入！',
+          tag: '6ヶ月 +19.03% / 出来高 1.68x',
+          body: '多くの個人投資家がAI半導体ばかり見ている間に、プロの機関投資家は半年前からヘルスケア（XLV）に巨額の資金を移し、+19%ものリターンを上げていました。'
+        },
+        cta: {
+          headline: '週足「買い（Buy）」維持のまま、日足50SMA（176.26）とRSI 41.0の黄金押し目に到達',
+          tag: '50日線サポート到達！',
+          body: '今週の下げで現在値（177.46）が日足50SMA（176.26）のすぐ上まで降りてきて、日足RSIも41.01までクールダウン。出来高1.68倍は機関投資家が50日線で待っていた指値買いが約定しているサインです。'
+        },
+        macro: {
+          headline: '高金利(5%)・景気減速に強く、AI創薬・業務効率化で利益率が上がる「AI活用側」の勝者',
+          tag: 'AIユーザー企業の代表',
+          body: 'ハイパースケーラーのようにAI開発で巨額の設備投資を強いられる側ではなく、AIを使って創薬コストや事務コストを下げる「恩恵を受ける側」の筆頭セクターです。'
+        }
+      },
+      nextAction: '6ヶ月+19%の強い上昇トレンド銘柄が、ちょうど50日線（176.26ドル）まで押してきた「教科書通りの押し目買いポイント」です。176〜178ドルでのエントリーが極めて有望。',
+      metrics: [
+        { label: '6ヶ月騰落率', value: '+19.03%', sub: 'QQQ(-10%)に+29%圧勝' },
+        { label: '日足 50SMA', value: '176.26', sub: '現在値177.46直下の支持' },
+        { label: '日足 RSI (14)', value: '41.01', sub: '押し目買いの理想水準' },
+        { label: '出来高倍率', value: '1.68x', sub: '50日線でプロが吸収中' }
+      ]
+    },
+    XLP: {
+      region: 'ETF',
+      ticker: 'AMEX:XLP',
+      title: 'XLP (米生活必需品ETF)',
+      subtitle: 'Consumer Staples Select Sector SPDR • 1M +2.33% • YTD +15.64%',
+      assetClass: '🛒 米ディフェンシブ株ETF',
+      price: '89.86',
+      unit: 'USD',
+      change: '-1.45% • 1M +2.33% • YTD +15.64% • 出来高 1.46倍',
+      isUp: true,
+      shortTitle: '20日線(90.14)付近で底堅くプラス圏維持',
+      shortPill: 'Defensive Leader',
+      shortTone: 'success',
+      longTitle: 'VIX 24超えのリスクオフ局面で輝く安定コア',
+      longPill: 'Buy',
+      longTone: 'success',
+      rangeStatus: 'S&P500が1ヶ月で-6.5%下落する中、+2.33%の逆行高！50SMA(86.25)・200SMA(85.01)の遥か上',
+      rangePos: '76%',
+      rangeLow: '85.01 (日足200SMA)',
+      rangeMid: '現在 89.86',
+      rangeHigh: '90.14 (日足20SMA)',
+      lenses: {
+        flow: {
+          headline: 'ハイパースケーラーから抜けた保守的年金マネーの「王道シェルター」',
+          tag: '1ヶ月 +2.33% / YTD +15.64%',
+          body: 'Costco、Walmart、P&G、Coca-Colaなど圧倒的な価格決定力を持つ生活必需品セクター。直近1ヶ月でもS&P500（-6.53%）を約9%アウトパフォームしています。'
+        },
+        cta: {
+          headline: '週足判定「買い（Buy）」、日足RSI 52.37で日足20SMA（90.14）に沿った安定上昇',
+          tag: 'ボラティリティ極小',
+          body: '50SMA（86.25）と200SMA（85.01）が綺麗な右肩上がりを描き、暴落耐性は全セクター中トップクラスです。'
+        },
+        macro: {
+          headline: 'インフレ・高金利5%でも消費者が削れない必需品＋キャッシュ創出力',
+          tag: 'インフレ耐性',
+          body: '米10年債利回りが5.05%に高止まりし景気減速懸念が出る局面で、機関投資家が株式ポートフォリオの守りを固めるためにオーバーウェイトしています。'
+        }
+      },
+      nextAction: 'ポートフォリオの変動（ボラティリティ）を抑えつつ年率+15%ペースの着実なリターンを狙う守りのコア枠として、88〜90ドルでの組み入れが有効です。',
+      metrics: [
+        { label: '1ヶ月騰落率', value: '+2.33%', sub: 'SPY(-6.5%)に+8.8%圧勝' },
+        { label: '年初来 (YTD)', value: '+15.64%', sub: 'ハイテク以上の安定成績' },
+        { label: '日足 50/200SMA', value: '86.25 / 85.01', sub: '強固な長期サポート' },
+        { label: '出来高倍率', value: '1.46x', sub: '機関投資家の逃避資金' }
+      ]
+    },
+    RSP: {
+      region: 'ETF',
+      ticker: 'AMEX:RSP',
+      title: 'RSP (S&P500 均等加重)',
+      subtitle: 'Invesco S&P 500 Equal Weight ETF • YTD +10.10% (SPYの2倍超) • 200日線維持',
+      assetClass: '⚖️ 米国株・均等加重ETF',
+      price: '211.63',
+      unit: 'USD',
+      change: '-1.76% • 1M -1.03% (SPYに+5.5%圧勝) • 出来高 1.40倍',
+      isUp: false,
+      shortTitle: '日足200SMA(209.19)の上をしっかり維持！',
+      shortPill: 'Hold 200SMA',
+      shortTone: 'warning',
+      longTitle: '「ハイパースケーラー外し」を1本で実現する新コアETF',
+      longPill: 'Core Rotation Buy',
+      longTone: 'success',
+      rangeStatus: '通常のS&P500(SPY)が1ヶ月-6.53%で200日線を割る中、均等加重のRSPは-1.03%で200日線(209.19)を死守',
+      rangePos: '46%',
+      rangeLow: '209.19 (日足200SMA)',
+      rangeMid: '現在 211.63',
+      rangeHigh: '218.54 (日足20SMA)',
+      lenses: {
+        flow: {
+          headline: '★Market Hackの「ハイパースケーラー比率の恒久的引き下げ」を証明する決定的なETF！',
+          tag: '1ヶ月 SPY比 +5.50%圧勝',
+          body: '通常のS&P500（SPY/IVV/CSPX）は上位のハイパースケーラーに30%集中しているため1ヶ月で-6.53%下落しましたが、500社を0.2%ずつ均等に持つこのRSPはわずか-1.03%（年初来ではSPY +4.4%に対しRSP +10.1%と2倍以上！）と圧倒的な強さを見せています。'
+        },
+        cta: {
+          headline: '日足200SMA（209.19ドル）のすぐ上で推移し、RSIも38.54と絶好の押し目圏',
+          tag: '200日線(209.2)サポート',
+          body: '現在値211.63は日足200SMA（209.19）の約1%上に位置し、出来高も平均の1.40倍と機関投資家のリバランス買いが入っています。'
+        },
+        macro: {
+          headline: '「AIを作る7社」から「AIを使って利益を増やす残り493社（金融・医薬・資本財）」への主役交代',
+          tag: 'S&P 493社の復権',
+          body: 'これから数年間、ハイパースケーラーの比重が恒久的に下げられるなら、時価総額加重のSPY/IVVよりも均等加重のRSPの方が長期パフォーマンスで優位に立つ公算が高いです。'
+        }
+      },
+      nextAction: '「米国株インデックスを持ちたいが、ハイパースケーラーの比率引き下げに巻き込まれたくない」という場合の最高の解決策です。209〜212ドル（200日線サポート帯）は絶好の買い場。',
+      metrics: [
+        { label: '1ヶ月 対SPY差', value: '+5.50%', sub: 'RSP -1.0% vs SPY -6.5%' },
+        { label: '年初来 (YTD)', value: '+10.10%', sub: 'SPY(+4.4%)の2倍以上' },
+        { label: '日足 200SMA', value: '209.19', sub: '現在値211.63の直下支持' },
+        { label: '日足 RSI (14)', value: '38.54', sub: '押し目買いの好水準' }
+      ]
+    },
     '8058': {
       region: 'JP',
       ticker: 'TSE:8058',
@@ -1514,6 +1790,12 @@ window.PROFLOW_DATA = {
 
     // Historical performance anchors from TradingView (1D, 5D, 1M, 3M, 6M, 1Y, SMA200)
     const CHART_ANCHORS = {
+      FLIN:   { cur: 37.16,  d5: 1.78,  m1: 9.17,  m3: 3.94,  m6: 6.78,  y1: -5.18, sma200: 35.15 },
+      UAE:    { cur: 20.89,  d5: -0.10, m1: 6.26,  m3: 7.02,  m6: 9.37,  y1: 8.41,  sma200: 19.56 },
+      CIBR:   { cur: 96.36,  d5: 1.19,  m1: -3.26, m3: 2.77,  m6: 16.74, y1: 33.89, sma200: 84.92 },
+      XLV:    { cur: 177.46, d5: -6.68, m1: -0.12, m3: 3.23,  m6: 19.03, y1: 14.59, sma200: 160.76 },
+      XLP:    { cur: 89.86,  d5: -2.37, m1: 2.33,  m3: 4.98,  m6: 6.07,  y1: 15.64, sma200: 85.01 },
+      RSP:    { cur: 211.63, d5: -4.97, m1: -1.03, m3: -4.37, m6: 2.87,  y1: 10.10, sma200: 209.19 },
       VWRA:   { cur: 182.18, d5: -3.55, m1: -5.23, m3: -5.72, m6: -1.84, y1: 9.06,  sma200: 185.05 },
       CSPX:   { cur: 790.97, d5: -3.46, m1: -5.47, m3: -4.57, m6: -0.88, y1: 3.22,  sma200: 791.46 },
       IVV:    { cur: 735.70, d5: -2.85, m1: -5.27, m3: -4.95, m6: -0.86, y1: 9.32,  sma200: 735.59 },
