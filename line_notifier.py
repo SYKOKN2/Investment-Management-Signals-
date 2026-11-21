@@ -238,22 +238,120 @@ def send_line_push(message_text):
         err_body = e.read().decode("utf-8", errors="ignore")
         print(f"LINE API Error ({e.code}): {err_body}")
 
+def find_matching_brace(text, open_index):
+    depth = 0
+    quote = None
+    escaped = False
+    for i in range(open_index, len(text)):
+        ch = text[i]
+        if quote:
+            if escaped:
+                escaped = False
+            elif ch == "\\":
+                escaped = True
+            elif ch == quote:
+                quote = None
+            continue
+        if ch in ("'", '"') or ch == chr(96):
+            quote = ch
+        elif ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                return i
+    raise ValueError("Unbalanced JavaScript object")
+
+
+def update_dashboard_html(live_data, now_str):
+    """Update TradingView-backed quotes and technical metrics embedded in index.html."""
+    path = "index.html"
+    with open(path, "r", encoding="utf-8") as f:
+        source = f.read()
+
+    symbols_match = re.search(r"\bsymbols\s*:\s*\{", source)
+    if not symbols_match:
+        raise RuntimeError("Could not find embedded dashboard symbols")
+    symbols_open = symbols_match.end() - 1
+    symbols_close = find_matching_brace(source, symbols_open)
+    entry_re = re.compile(r"(?m)^    (?:'([A-Za-z0-9_]+)'|([A-Za-z0-9_]+)):\s*\{")
+    entries = list(entry_re.finditer(source, symbols_open, symbols_close))
+    dashboard_ids = {m.group(1) or m.group(2) for m in entries}
+    missing = dashboard_ids - set(live_data)
+    if missing:
+        raise RuntimeError(f"TradingView data missing for dashboard symbols: {sorted(missing)}")
+
+    updates = []
+    for match in entries:
+        sym_id = match.group(1) or match.group(2)
+        open_brace = source.find("{", match.start(), match.end())
+        close_brace = find_matching_brace(source, open_brace)
+        block = source[match.start():close_brace + 1]
+        data = live_data[sym_id]
+        close, change, change_abs = data.get("close"), data.get("change"), data.get("change_abs")
+        if close is None or change is None or change_abs is None:
+            raise RuntimeError(f"Incomplete TradingView quote for {sym_id}")
+        meta = SYMBOLS[sym_id]
+        price = fmt_price(close, meta["unit"], sym_id)
+        daily_text = f"{change_abs:+.2f} ({change:+.2f}%) • TV daily"
+        block, n_price = re.subn(r"(?m)^(      price: )'[^']*',", lambda m: m.group(1) + repr(price) + ",", block, count=1)
+        block, n_change = re.subn(r"(?m)^(      change: )'[^']*',", lambda m: m.group(1) + repr(daily_text) + ",", block, count=1)
+        block, n_up = re.subn(r"(?m)^(      isUp: )(?:true|false),", lambda m: m.group(1) + ("true" if change >= 0 else "false") + ",", block, count=1)
+        if (n_price, n_change, n_up) != (1, 1, 1):
+            raise RuntimeError(f"Could not update quote fields for {sym_id}")
+
+        metrics = {
+            "日足 RSI (14)": data.get("RSI"),
+            "日足 20SMA": data.get("SMA20"),
+            "日足 50SMA": data.get("SMA50"),
+            "日足 200SMA": data.get("SMA200"),
+            "週足 50EMA": data.get("EMA50|1W"),
+        }
+        for label, value in metrics.items():
+            if value is None:
+                continue
+            formatted = fmt_price(value, meta["unit"], sym_id)
+            metric_re = re.compile(r"({ label: " + re.escape(repr(label)) + r", value: )'[^']*'")
+            block = metric_re.sub(lambda m: m.group(1) + repr(formatted), block, count=1)
+        block = re.sub(r"(rangeMid: '現在 )[^']*(')", lambda m: m.group(1) + price + m.group(2), block, count=1)
+        updates.append((match.start(), close_brace + 1, block))
+
+    for start, end, block in reversed(updates):
+        source = source[:start] + block + source[end:]
+
+    anchor_start = source.index("const CHART_ANCHORS")
+    anchor_end = source.index("\n    };", anchor_start)
+    anchors = source[anchor_start:anchor_end]
+    for sym_id in dashboard_ids:
+        data = live_data[sym_id]
+        close, sma200 = data.get("close"), data.get("SMA200")
+        if close is None or sma200 is None:
+            raise RuntimeError(f"Missing chart values for {sym_id}")
+        key = re.escape(sym_id) if sym_id.isidentifier() else "'" + re.escape(sym_id) + "'"
+        anchor_re = re.compile(r"(?m)^(\s*" + key + r"\s*:\s*\{[^}]*\})")
+        match = anchor_re.search(anchors)
+        if not match:
+            raise RuntimeError(f"Missing chart anchor for {sym_id}")
+        anchor = match.group(1)
+        anchor = re.sub(r"(\bcur:\s*)[-+]?\d+(?:\.\d+)?", lambda m: m.group(1) + str(close), anchor, count=1)
+        anchor = re.sub(r"(\bsma200:\s*)[-+]?\d+(?:\.\d+)?", lambda m: m.group(1) + str(sma200), anchor, count=1)
+        anchors = anchors[:match.start(1)] + anchor + anchors[match.end(1):]
+    source = source[:anchor_start] + anchors + source[anchor_end:]
+    source = re.sub(r'(updatedAt:\s*")[^"]*(")', lambda m: m.group(1) + now_str + m.group(2), source, count=1)
+
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(source)
+    print(f"Updated dashboard numeric data for {len(updates)} symbols at {now_str}.")
+
+
 def main():
     tz_sg = timezone(timedelta(hours=8))
     now_str = datetime.now(tz_sg).strftime("%Y-%m-%d %H:%M GMT+8")
-
     live = fetch_tradingview_scan()
     print(f"Fetched live TradingView data for {len(live)} symbols.")
-
-    if os.path.exists("signals_data.js"):
-        with open("signals_data.js", "r", encoding="utf-8") as f:
-            text = f.read()
-        text = re.sub(r'updatedAt:\s*"[^"]*"', f'updatedAt: "{now_str}"', text)
-        with open("signals_data.js", "w", encoding="utf-8") as f:
-            f.write(text)
-
-    line_msg = build_line_message(live, now_str)
-    send_line_push(line_msg)
+    update_dashboard_html(live, now_str)
+    send_line_push(build_line_message(live, now_str))
 
 if __name__ == "__main__":
     main()
+
