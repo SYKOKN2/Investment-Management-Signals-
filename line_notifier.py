@@ -325,7 +325,7 @@ def update_dashboard_html(live_data, now_str):
     for sym_id in dashboard_ids:
         data = live_data[sym_id]
         close, sma200 = data.get("close"), data.get("SMA200")
-        if close is None or sma200 is None:
+        if close is None:
             raise RuntimeError(f"Missing chart values for {sym_id}")
         key = re.escape(sym_id) if sym_id.isidentifier() else "'" + re.escape(sym_id) + "'"
         anchor_re = re.compile(r"(?m)^(\s*" + key + r"\s*:\s*\{[^}]*\})")
@@ -334,7 +334,10 @@ def update_dashboard_html(live_data, now_str):
             raise RuntimeError(f"Missing chart anchor for {sym_id}")
         anchor = match.group(1)
         anchor = re.sub(r"(\bcur:\s*)[-+]?\d+(?:\.\d+)?", lambda m: m.group(1) + str(close), anchor, count=1)
-        anchor = re.sub(r"(\bsma200:\s*)[-+]?\d+(?:\.\d+)?", lambda m: m.group(1) + str(sma200), anchor, count=1)
+        if sma200 is not None:
+            anchor = re.sub(r"(\bsma200:\s*)[-+]?\d+(?:\.\d+)?", lambda m: m.group(1) + str(sma200), anchor, count=1)
+        else:
+            print(f"TradingView has no 200-day average for {sym_id}; keeping the previous chart value.")
         anchors = anchors[:match.start(1)] + anchor + anchors[match.end(1):]
     source = source[:anchor_start] + anchors + source[anchor_end:]
     source = re.sub(r'(updatedAt:\s*")[^"]*(")', lambda m: m.group(1) + now_str + m.group(2), source, count=1)
